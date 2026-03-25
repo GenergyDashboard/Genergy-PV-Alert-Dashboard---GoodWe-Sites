@@ -87,6 +87,11 @@ OFFLINE_THRESHOLD  = 0.01
 HISTORY_DAYS       = 30
 MIN_HISTORY_DAYS   = 7
 
+# GoodWe SEMS+ (hk-semsplus.goodwe.com) reports in Hong Kong Time (UTC+8).
+# SAST is UTC+2. Offset to apply: SAST - HKT = 2 - 8 = -6 hours.
+# i.e. 13:00 HKT = 07:00 SAST.
+REPORT_TZ_OFFSET   = -6
+
 _HERE       = Path(__file__).parent
 RAW_FILE    = _HERE / "data" / "raw_report.xlsx"
 SITES_DIR   = _HERE / "sites"
@@ -153,74 +158,128 @@ def parse_goodwe_report(filepath: Path) -> dict:
     """
     Parse the GoodWe Station Operation Report.
     Returns dict of {station_name: {"hourly": [24 floats], "date": str}}
-    
-    GoodWe format:
-      Row 1: Report Date header
-      Row 2: Column headers (Station Information, Indicator, 00:00-23:00)
-      Row 3+: Data rows with Station Name in col A, Indicator in col B, hourly values in cols C-Z
-      
-    Data is already in SAST (no UTC offset needed).
+
+    Dynamically finds hour columns from the header row rather than
+    hardcoding column positions, so it survives layout changes.
     """
     df = pd.read_excel(filepath, header=None, sheet_name=0)
-    
-    # Extract report date from row 1
-    report_date_raw = str(df.iloc[1, 0]) if len(df) > 1 else ""
+
+    print(f"  📐 Sheet dimensions: {df.shape[0]} rows × {df.shape[1]} cols")
+
+    # ── Find the report date ──────────────────────────────────────
     report_date = None
-    if "Report Date:" in report_date_raw:
-        date_part = report_date_raw.split("Report Date:")[1].strip()
-        try:
-            # Format: "22-03-2026"
-            dt = datetime.strptime(date_part, "%d-%m-%Y")
-            report_date = dt.strftime("%Y-%m-%d")
-        except Exception:
-            pass
-    
+    for row_idx in range(min(5, len(df))):
+        cell = str(df.iloc[row_idx, 0]) if not pd.isna(df.iloc[row_idx, 0]) else ""
+        if "Report Date:" in cell:
+            date_part = cell.split("Report Date:")[1].strip()
+            try:
+                dt = datetime.strptime(date_part, "%d-%m-%Y")
+                report_date = dt.strftime("%Y-%m-%d")
+            except Exception:
+                pass
+            break
+
     if not report_date:
         report_date = datetime.now(SAST).strftime("%Y-%m-%d")
-    
     print(f"  📅 Report date: {report_date}")
-    
-    # Extract PV Power rows
+
+    # ── Find the header row and map hour columns dynamically ──────
+    header_row_idx = None
+    hour_col_map = {}  # {hour_int: column_index}
+
+    for row_idx in range(min(10, len(df))):
+        row_vals = [str(v).strip() if not pd.isna(v) else "" for v in df.iloc[row_idx].tolist()]
+        found_hours = {}
+        for col_idx, val in enumerate(row_vals):
+            if len(val) == 5 and val[2] == ':' and val[:2].isdigit() and val[3:].isdigit():
+                hour_int = int(val[:2])
+                if 0 <= hour_int <= 23:
+                    found_hours[hour_int] = col_idx
+        if len(found_hours) >= 12:
+            header_row_idx = row_idx
+            hour_col_map = found_hours
+            break
+
+    if header_row_idx is None or not hour_col_map:
+        print("  ❌ Could not find hour column headers in xlsx!")
+        for r in range(min(5, len(df))):
+            print(f"     Row {r}: {df.iloc[r].tolist()[:8]}...")
+        return {}
+
+    print(f"  📊 Header row: {header_row_idx} | {len(hour_col_map)} hour columns found")
+    print(f"     00:00→col {hour_col_map.get(0, '?')} | "
+          f"06:00→col {hour_col_map.get(6, '?')} | "
+          f"12:00→col {hour_col_map.get(12, '?')} | "
+          f"23:00→col {hour_col_map.get(23, '?')}")
+
+    # ── Find the Indicator column ─────────────────────────────────
+    indicator_col = 1  # default
+    row_vals = [str(v).strip().lower() if not pd.isna(v) else "" for v in df.iloc[header_row_idx].tolist()]
+    for col_idx, val in enumerate(row_vals):
+        if val == "indicator":
+            indicator_col = col_idx
+            break
+
+    # ── Extract PV Power rows ─────────────────────────────────────
     results = {}
-    for i in range(3, len(df)):
-        indicator = str(df.iloc[i, 1]).strip() if not pd.isna(df.iloc[i, 1]) else ""
+    data_start = header_row_idx + 1
+
+    for i in range(data_start, len(df)):
+        indicator = str(df.iloc[i, indicator_col]).strip() if not pd.isna(df.iloc[i, indicator_col]) else ""
         if indicator != "PV Power(kW)":
             continue
-        
+
         station_info = str(df.iloc[i, 0]) if not pd.isna(df.iloc[i, 0]) else ""
         station_name = ""
         if "Station Name:" in station_info:
             station_name = station_info.split("Station Name:")[1].split("\n")[0].strip()
-        
+
         if not station_name:
             continue
-        
-        # Extract hourly values (columns 2-25 = hours 00:00-23:00)
-        hourly = []
-        for col in range(2, 26):
-            val = df.iloc[i, col] if col < len(df.columns) else 0
-            try:
-                hourly.append(round(float(val), 4) if not pd.isna(val) else 0.0)
-            except (ValueError, TypeError):
-                hourly.append(0.0)
-        
-        total = sum(hourly)
-        
+
+        # Read hourly values using the dynamic column map
+        # Apply timezone offset: report is in HKT (UTC+8), convert to SAST (UTC+2)
+        raw_hourly = [0.0] * 24
+        for hour_int, col_idx in hour_col_map.items():
+            if col_idx < len(df.columns):
+                val = df.iloc[i, col_idx]
+                try:
+                    raw_hourly[hour_int] = round(float(val), 4) if not pd.isna(val) else 0.0
+                except (ValueError, TypeError):
+                    raw_hourly[hour_int] = 0.0
+
+        # Shift from HKT to SAST
+        hourly = [0.0] * 24
+        for hkt_hour in range(24):
+            sast_hour = hkt_hour + REPORT_TZ_OFFSET
+            # Only keep hours that fall within the same SAST calendar day (0-23)
+            # HKT hours 0-5 map to previous SAST day (discard)
+            if 0 <= sast_hour <= 23:
+                hourly[sast_hour] = raw_hourly[hkt_hour]
+
+        total = round(sum(hourly), 3)
+
         # Find last non-zero hour
         last_hour = 0
         for h in range(23, -1, -1):
             if hourly[h] > 0:
                 last_hour = h
                 break
-        
+
         results[station_name] = {
             "date": report_date,
             "hourly": hourly,
-            "total_kwh": round(total, 3),
+            "total_kwh": total,
             "last_hour": last_hour,
         }
-        print(f"    ✅ {station_name}: {total:.1f} kWh, last hour: {last_hour:02d}:00")
-    
+
+        # Debug: show first few non-zero hours
+        nonzero = [(h, hourly[h]) for h in range(24) if hourly[h] > 0]
+        nz_preview = ", ".join(f"{h:02d}:00={v:.1f}" for h, v in nonzero[:5])
+        if len(nonzero) > 5:
+            nz_preview += f" ... ({len(nonzero)} hrs total)"
+        print(f"    ✅ {station_name}: {total:.1f} kWh | last: {last_hour:02d}:00 | {nz_preview}")
+
     return results
 
 
@@ -484,35 +543,50 @@ def main():
 
     print(f"\n🔍 Site validation: {len(found_names)} found, {len(expected_names)} expected")
 
-    if missing_sites:
-        print(f"  ⚠️  MISSING from report ({len(missing_sites)}):")
-        for name in sorted(missing_sites):
-            print(f"       - {name}")
-
     if unknown_sites:
         print(f"  ⚠️  UNKNOWN sites in report ({len(unknown_sites)}):")
         for name in sorted(unknown_sites):
             print(f"       + {name}")
-
-    if missing_sites or unknown_sites:
-        alert_parts = []
-        if missing_sites:
-            alert_parts.append(
-                "Missing:\n" + "\n".join(f"  • {n}" for n in sorted(missing_sites))
-            )
-        if unknown_sites:
-            alert_parts.append(
-                "New/Unknown:\n" + "\n".join(f"  • {n}" for n in sorted(unknown_sites))
-            )
         send_telegram(
-            f"⚠️ <b>GoodWe Report — Site Mismatch</b>\n"
-            f"Expected {len(expected_names)} sites, found {len(found_names)}.\n\n"
-            + "\n\n".join(alert_parts)
-            + "\n\n🔧 Update SITES registry in process_all_sites.py if needed."
+            f"⚠️ <b>GoodWe Report — New/Unknown Sites</b>\n"
+            f"The following sites appeared in the report but are not registered:\n\n"
+            + "\n".join(f"  • {n}" for n in sorted(unknown_sites))
+            + "\n\nThey will be skipped. Add them to SITES in process_all_sites.py if needed."
         )
-    else:
-        print(f"  ✅ All {len(expected_names)} expected sites present")
 
+    if missing_sites:
+        # HARD FAIL — expected sites are missing, scraper may have selected wrong stations
+        missing_list = "\n".join(f"       ❌ {n}" for n in sorted(missing_sites))
+        replaced_hint = ""
+        if unknown_sites:
+            replaced_hint = (
+                "\n\n  Possibly replaced by:\n"
+                + "\n".join(f"       ➕ {n}" for n in sorted(unknown_sites))
+            )
+
+        print(f"\n  🚨 MISSING SITES — expected but not in report ({len(missing_sites)}):")
+        print(missing_list)
+        if replaced_hint:
+            print(replaced_hint)
+
+        send_telegram(
+            f"🚨 <b>GoodWe Report — MISSING SITES</b>\n"
+            f"Expected {len(expected_names)} sites but {len(missing_sites)} are missing!\n\n"
+            f"<b>Missing:</b>\n"
+            + "\n".join(f"  ❌ {n}" for n in sorted(missing_sites))
+            + (
+                "\n\n<b>Unexpected (possible replacements):</b>\n"
+                + "\n".join(f"  ➕ {n}" for n in sorted(unknown_sites))
+                if unknown_sites else ""
+            )
+            + "\n\n⚠️ The scraper may have selected the wrong stations. "
+            "Check the GoodWe SEMS+ station checkboxes.\n"
+            "Processing aborted — no data was updated."
+        )
+        print(f"\n  ❌ Aborting — fix the scraper station selection before data gets corrupted.")
+        sys.exit(1)
+
+    print(f"  ✅ All {len(expected_names)} expected sites present")
     print(f"\n📊 Processing {len(found_names)} sites...\n")
 
     for station_name, site_data in all_sites.items():
