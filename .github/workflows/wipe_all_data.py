@@ -1,0 +1,30 @@
+name: Wipe Today's Data
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wipe:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Wipe today's data
+        run: python wipe_all_data.py --today
+
+      - name: Commit and push
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add sites/*/data/*.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🧹 Wiped today's data - $(date +'%Y-%m-%d %H:%M UTC')" && git pull --rebase && git push)
