@@ -114,7 +114,7 @@ def download_goodwe_report():
             # ── Step 3: Select all stations ────────────────────────────
             print("🏢 Step 4: Selecting stations...")
             # Click checkboxes for all stations (indices 1-10 in the tree)
-            page.locator(".ant-tree-checkbox-inner").first().click()
+            page.locator(".ant-tree-checkbox-inner").first.click()
             human_delay(0.5, 1)
             for i in range(2, 11):
                 try:
