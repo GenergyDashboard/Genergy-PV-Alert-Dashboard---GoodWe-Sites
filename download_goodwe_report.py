@@ -2,11 +2,14 @@
 download_goodwe_report.py
 
 Downloads the daily Station Operation Report from GoodWe SEMS+ portal.
-Contains hourly PV Power data for all configured stations in a single xlsx.
+Searches for each station by name to ensure the correct sites are selected.
 
 Environment variables (set as GitHub secrets):
   GOODWE_USERNAME  - GoodWe SEMS+ email
   GOODWE_PASSWORD  - GoodWe SEMS+ password
+
+To add a new station, simply add its name to the STATIONS list below.
+The name must match exactly how it appears in GoodWe SEMS+.
 """
 
 import time
@@ -15,6 +18,21 @@ import os
 import sys
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+
+# =============================================================================
+# ✏️  STATION LIST — Add or remove station names here
+# =============================================================================
+STATIONS = [
+    "Aurora",
+    "BMI Isuzu",
+    "WG Bloomingdales",
+    "WG Circular Business Park",
+    "WG Cure Day hospital",
+    "WG DEBI LEE SPAR",
+    "WG Gonubie Mall",
+    "WG Heritage Mall",
+    "WG Wellington square",
+]
 
 # =============================================================================
 # CONFIG
@@ -30,6 +48,40 @@ def human_delay(min_s=2, max_s=5):
     time.sleep(delay)
 
 
+def search_and_select_station(page, station_name):
+    """Search for a station by name and tick its checkbox."""
+    print(f"    🔎 Searching: '{station_name}'...")
+
+    search_box = page.get_by_role("textbox", name="Station Name")
+
+    # Clear the search box
+    search_box.click()
+    search_box.fill("")
+    human_delay(0.5, 1)
+
+    # Type the station name
+    search_box.fill(station_name)
+    human_delay(0.5, 1)
+
+    # Click the search icon (magnifying glass next to input)
+    page.locator(".ant-input-suffix > .index-module_wrap_640bd > img").click()
+    human_delay(2, 3)
+
+    # Tick the checkbox for the result
+    try:
+        page.locator(".ant-tree-checkbox-inner").click(timeout=5000)
+        print(f"    ✅ Selected: '{station_name}'")
+    except Exception as e:
+        print(f"    ⚠️  Could not select '{station_name}': {e}")
+        try:
+            safe_name = station_name.replace(" ", "_").replace("/", "_")
+            page.screenshot(path=f"error_select_{safe_name}.png")
+        except Exception:
+            pass
+
+    human_delay(0.5, 1)
+
+
 def download_goodwe_report():
     username = os.environ.get("GOODWE_USERNAME")
     password = os.environ.get("GOODWE_PASSWORD")
@@ -40,11 +92,14 @@ def download_goodwe_report():
     print(f"🚀 Starting GoodWe SEMS+ download")
     print(f"🔐 Username: {username[:4]}***")
     print(f"📁 Output: {OUTPUT_FILE}")
+    print(f"🏢 Stations to select: {len(STATIONS)}")
+    for s in STATIONS:
+        print(f"     • {s}")
 
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     with sync_playwright() as playwright:
-        print("🌐 Launching browser...")
+        print("\n🌐 Launching browser...")
         browser = playwright.chromium.launch(
             headless=True,
             args=["--no-sandbox", "--disable-setuid-sandbox",
@@ -71,6 +126,14 @@ def download_goodwe_report():
             page.goto(LOGIN_URL, wait_until="networkidle", timeout=60000)
             human_delay(3, 5)
 
+            # Accept cookies if prompted (before login)
+            try:
+                page.get_by_role("button", name="Accept cookies").click(timeout=5000)
+                print("  🍪 Accepted cookies")
+                human_delay(1, 2)
+            except Exception:
+                print("  ℹ️  No cookie banner")
+
             print("👤 Step 2: Entering credentials...")
             page.get_by_role("textbox", name="Email").click()
             page.get_by_role("textbox", name="Email").fill(username)
@@ -80,53 +143,30 @@ def download_goodwe_report():
             page.get_by_role("textbox", name="Password").fill(password)
             human_delay(1, 2)
 
-            # Accept terms checkbox
-            print("  ☑️  Accepting terms...")
             page.get_by_role("checkbox", name="I have read and agreed to the").check()
             human_delay(0.5, 1)
 
-            # Click Login
             page.get_by_role("button", name="Login").click()
-            human_delay(3, 5)
-
-            # Accept cookies if prompted
-            try:
-                page.get_by_role("button", name="Accept cookies").click(timeout=5000)
-                print("  🍪 Accepted cookies")
-                human_delay(1, 2)
-            except Exception:
-                print("  ℹ️  No cookie banner")
-
             page.wait_for_load_state("networkidle", timeout=60000)
             human_delay(5, 8)
             print(f"  📍 After login: {page.url[:80]}")
 
-            # ── Step 2: Navigate to Report Center ──────────────────────
+            # ── Step 2: Report Center ──────────────────────────────────
             print("📊 Step 3: Opening Report Center...")
             page.get_by_role("menuitem", name="Report Center").get_by_role("img").click()
             human_delay(3, 5)
 
-            # Click Station Report
             print("  📋 Selecting Station Report...")
             page.get_by_text("Station ReportGeneration and").click()
             human_delay(3, 5)
 
-            # ── Step 3: Select all stations ────────────────────────────
-            print("🏢 Step 4: Selecting stations...")
-            # Click checkboxes for all stations (indices 1-10 in the tree)
-            page.locator(".ant-tree-checkbox-inner").first.click()
-            human_delay(0.5, 1)
-            for i in range(2, 11):
-                try:
-                    page.locator(f"div:nth-child({i}) > .ant-tree-checkbox > .ant-tree-checkbox-inner").click()
-                    human_delay(0.3, 0.6)
-                except Exception:
-                    print(f"  ℹ️  Checkbox {i} not found (may be fewer stations)")
-                    break
-            human_delay(2, 3)
+            # ── Step 3: Search and select each station ─────────────────
+            print(f"🏢 Step 4: Selecting {len(STATIONS)} stations...")
+            for station in STATIONS:
+                search_and_select_station(page, station)
 
-            # ── Step 4: Switch to Operational Report, 60 min ───────────
-            print("⚙️  Step 5: Configuring report type...")
+            # ── Step 4: Configure report ───────────────────────────────
+            print("⚙️  Step 5: Configuring report...")
             page.get_by_text("Operational Report").click()
             human_delay(2, 3)
 
@@ -138,11 +178,9 @@ def download_goodwe_report():
 
             # ── Step 5: Generate and Download ──────────────────────────
             print("📤 Step 6: Generating report...")
-            # Click the generate/query button (the image button next to date)
             page.locator("div:nth-child(2) > .index-module_wrap_640bd > img").click()
             human_delay(3, 5)
 
-            # Click Confirm if prompted
             try:
                 page.get_by_role("button", name="Confirm").click(timeout=5000)
                 human_delay(3, 5)
