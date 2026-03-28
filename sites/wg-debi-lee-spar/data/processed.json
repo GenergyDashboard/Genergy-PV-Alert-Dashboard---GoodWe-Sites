@@ -1,9 +1,9 @@
 {
   "plant": "WG DEBI LEE SPAR",
-  "last_updated": "2026-03-28 07:27 SAST",
+  "last_updated": "2026-03-28 09:13 SAST",
   "date": "2026-03-28",
-  "total_kwh": 26.03,
-  "last_hour": 7,
+  "total_kwh": 279.5,
+  "last_hour": 9,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -20,8 +20,8 @@
       0.0,
       0.0,
       26.03,
-      0.0,
-      0.0,
+      99.92,
+      153.55,
       0.0,
       0.0,
       0.0,
@@ -73,8 +73,8 @@
     0.0,
     0.0,
     26.03,
-    0.0,
-    0.0,
+    99.92,
+    153.55,
     0.0,
     0.0,
     0.0,
@@ -503,7 +503,7 @@
       "last_hour": 17
     },
     "2026-03-28": {
-      "total_kwh": 26.03,
+      "total_kwh": 279.5,
       "hourly": [
         0.0,
         0.0,
@@ -513,8 +513,8 @@
         0.0,
         0.0,
         26.03,
-        0.0,
-        0.0,
+        99.92,
+        153.55,
         0.0,
         0.0,
         0.0,
@@ -556,8 +556,8 @@
         0,
         0
       ],
-      "last_updated": "2026-03-28 07:27 SAST",
-      "last_hour": 7
+      "last_updated": "2026-03-28 09:13 SAST",
+      "last_hour": 9
     }
   },
   "thresholds": {
@@ -568,7 +568,7 @@
     "min_history_days": 7
   },
   "debug": {
-    "reason": "too early",
+    "reason": "bootstrap (3/7)",
     "sample_days": 3
   }
 }
