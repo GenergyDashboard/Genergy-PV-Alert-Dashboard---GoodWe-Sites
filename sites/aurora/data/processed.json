@@ -1,9 +1,9 @@
 {
   "plant": "Aurora",
-  "last_updated": "2026-03-31 13:09 SAST",
+  "last_updated": "2026-03-31 16:00 SAST",
   "date": "2026-03-31",
-  "total_kwh": 371.61,
-  "last_hour": 7,
+  "total_kwh": 518.47,
+  "last_hour": 9,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -20,8 +20,8 @@
       89.41,
       93.85,
       101.16,
-      0.0,
-      0.0,
+      81.54,
+      65.32,
       0.0,
       0.0,
       0.0,
@@ -73,8 +73,8 @@
     89.41,
     93.85,
     101.16,
-    0.0,
-    0.0,
+    81.54,
+    65.32,
     0.0,
     0.0,
     0.0,
@@ -674,7 +674,7 @@
       "last_hour": 11
     },
     "2026-03-31": {
-      "total_kwh": 371.61,
+      "total_kwh": 518.47,
       "hourly": [
         0.0,
         1.26,
@@ -684,8 +684,8 @@
         89.41,
         93.85,
         101.16,
-        0.0,
-        0.0,
+        81.54,
+        65.32,
         0.0,
         0.0,
         0.0,
@@ -727,8 +727,8 @@
         0,
         0
       ],
-      "last_updated": "2026-03-31 13:09 SAST",
-      "last_hour": 7
+      "last_updated": "2026-03-31 16:00 SAST",
+      "last_hour": 9
     }
   },
   "thresholds": {
@@ -739,7 +739,7 @@
     "min_history_days": 7
   },
   "debug": {
-    "reason": "too early",
+    "reason": "bootstrap (6/7)",
     "sample_days": 6
   }
 }
