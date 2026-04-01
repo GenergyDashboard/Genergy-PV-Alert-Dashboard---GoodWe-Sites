@@ -85,7 +85,7 @@ TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID",   "")
 PACE_THRESHOLD_PCT = 0.30
 OFFLINE_THRESHOLD  = 0.01
 HISTORY_DAYS       = 30
-MIN_HISTORY_DAYS   = 7
+MIN_HISTORY_DAYS   = 0
 
 # GoodWe SEMS+ (hk-semsplus.goodwe.com) reports in Hong Kong Time (UTC+8).
 # SAST is UTC+2. Offset to apply: SAST - HKT = 2 - 8 = -6 hours.
