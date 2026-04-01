@@ -1,6 +1,6 @@
 {
   "plant": "WG Circular Business Park",
-  "last_updated": "2026-04-01 23:01 SAST",
+  "last_updated": "2026-04-01 23:56 SAST",
   "date": "2026-04-01",
   "total_kwh": 394.37,
   "last_hour": 18,
@@ -784,7 +784,7 @@
         0,
         0
       ],
-      "last_updated": "2026-04-01 23:01 SAST",
+      "last_updated": "2026-04-01 23:56 SAST",
       "last_hour": 18
     }
   },
