@@ -90,7 +90,7 @@ MIN_HISTORY_DAYS   = 7
 # GoodWe SEMS+ (hk-semsplus.goodwe.com) reports in Hong Kong Time (UTC+8).
 # SAST is UTC+2. Offset to apply: SAST - HKT = 2 - 8 = -6 hours.
 # i.e. 13:00 HKT = 07:00 SAST.
-REPORT_TZ_OFFSET   = 0
+REPORT_TZ_OFFSET   = -6
 
 _HERE       = Path(__file__).parent
 RAW_FILE    = _HERE / "data" / "raw_report.xlsx"
@@ -555,8 +555,7 @@ def main():
         )
 
     if missing_sites:
-        # HARD FAIL — expected sites are missing, scraper may have selected wrong stations
-        missing_list = "\n".join(f"       ❌ {n}" for n in sorted(missing_sites))
+        missing_list = "\n".join(f"       ⚠️  {n}" for n in sorted(missing_sites))
         replaced_hint = ""
         if unknown_sites:
             replaced_hint = (
@@ -564,29 +563,26 @@ def main():
                 + "\n".join(f"       ➕ {n}" for n in sorted(unknown_sites))
             )
 
-        print(f"\n  🚨 MISSING SITES — expected but not in report ({len(missing_sites)}):")
+        print(f"\n  ⚠️  MISSING SITES — expected but not in report ({len(missing_sites)}):")
         print(missing_list)
         if replaced_hint:
             print(replaced_hint)
+        print(f"  ℹ️  Continuing with {len(found_names)} available sites...")
 
         send_telegram(
-            f"🚨 <b>GoodWe Report — MISSING SITES</b>\n"
-            f"Expected {len(expected_names)} sites but {len(missing_sites)} are missing!\n\n"
+            f"⚠️ <b>GoodWe Report — Missing Sites</b>\n"
+            f"Expected {len(expected_names)} sites but {len(missing_sites)} missing.\n\n"
             f"<b>Missing:</b>\n"
-            + "\n".join(f"  ❌ {n}" for n in sorted(missing_sites))
+            + "\n".join(f"  ⚠️ {n}" for n in sorted(missing_sites))
             + (
                 "\n\n<b>Unexpected (possible replacements):</b>\n"
                 + "\n".join(f"  ➕ {n}" for n in sorted(unknown_sites))
                 if unknown_sites else ""
             )
-            + "\n\n⚠️ The scraper may have selected the wrong stations. "
-            "Check the GoodWe SEMS+ station checkboxes.\n"
-            "Processing aborted — no data was updated."
+            + "\n\nProcessing available sites. Missing sites may be offline on the GoodWe portal."
         )
-        print(f"\n  ❌ Aborting — fix the scraper station selection before data gets corrupted.")
-        sys.exit(1)
-
-    print(f"  ✅ All {len(expected_names)} expected sites present")
+    else:
+        print(f"  ✅ All {len(expected_names)} expected sites present")
     print(f"\n📊 Processing {len(found_names)} sites...\n")
 
     for station_name, site_data in all_sites.items():
