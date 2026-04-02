@@ -90,7 +90,7 @@ MIN_HISTORY_DAYS   = 7
 # GoodWe SEMS+ (hk-semsplus.goodwe.com) reports in Hong Kong Time (UTC+8).
 # SAST is UTC+2. Offset to apply: SAST - HKT = 2 - 8 = -6 hours.
 # i.e. 13:00 HKT = 07:00 SAST.
-REPORT_TZ_OFFSET   = -6
+REPORT_TZ_OFFSET   = 0
 
 _HERE       = Path(__file__).parent
 RAW_FILE    = _HERE / "data" / "raw_report.xlsx"
