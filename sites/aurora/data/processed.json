@@ -1,6 +1,6 @@
 {
   "plant": "Aurora",
-  "last_updated": "2026-04-03 17:52 SAST",
+  "last_updated": "2026-04-03 19:50 SAST",
   "date": "2026-04-03",
   "total_kwh": 366.27,
   "last_hour": 17,
@@ -442,7 +442,7 @@
         0,
         0
       ],
-      "last_updated": "2026-04-03 17:52 SAST",
+      "last_updated": "2026-04-03 19:50 SAST",
       "last_hour": 17
     }
   },
