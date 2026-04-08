@@ -1,9 +1,9 @@
 {
   "plant": "WG Cure Day hospital",
-  "last_updated": "2026-04-08 16:01 SAST",
+  "last_updated": "2026-04-08 17:27 SAST",
   "date": "2026-04-08",
-  "total_kwh": 285.74,
-  "last_hour": 15,
+  "total_kwh": 304.89,
+  "last_hour": 17,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -28,8 +28,8 @@
       44.12,
       39.25,
       30.36,
-      0.0,
-      0.0,
+      17.23,
+      1.92,
       0.0,
       0.0,
       0.0,
@@ -81,8 +81,8 @@
     44.12,
     39.25,
     30.36,
-    0.0,
-    0.0,
+    17.23,
+    1.92,
     0.0,
     0.0,
     0.0,
@@ -674,7 +674,7 @@
       "last_hour": 18
     },
     "2026-04-08": {
-      "total_kwh": 285.74,
+      "total_kwh": 304.89,
       "hourly": [
         0.0,
         0.0,
@@ -692,8 +692,8 @@
         44.12,
         39.25,
         30.36,
-        0.0,
-        0.0,
+        17.23,
+        1.92,
         0.0,
         0.0,
         0.0,
@@ -727,8 +727,8 @@
         0,
         0
       ],
-      "last_updated": "2026-04-08 16:01 SAST",
-      "last_hour": 15
+      "last_updated": "2026-04-08 17:27 SAST",
+      "last_hour": 17
     }
   },
   "thresholds": {
@@ -739,7 +739,7 @@
     "min_history_days": 7
   },
   "debug": {
-    "reason": "bootstrap (6/7)",
+    "reason": "nighttime",
     "sample_days": 6
   }
 }
