@@ -1,9 +1,9 @@
 {
   "plant": "WG DEBI LEE SPAR",
-  "last_updated": "2026-04-10 12:49 SAST",
+  "last_updated": "2026-04-10 13:59 SAST",
   "date": "2026-04-10",
-  "total_kwh": 954.01,
-  "last_hour": 12,
+  "total_kwh": 1204.32,
+  "last_hour": 13,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -25,7 +25,7 @@
       212.76,
       241.44,
       256.68,
-      0.0,
+      250.31,
       0.0,
       0.0,
       0.0,
@@ -78,7 +78,7 @@
     212.76,
     241.44,
     256.68,
-    0.0,
+    250.31,
     0.0,
     0.0,
     0.0,
@@ -788,7 +788,7 @@
       "last_hour": 18
     },
     "2026-04-10": {
-      "total_kwh": 954.01,
+      "total_kwh": 1204.32,
       "hourly": [
         0.0,
         0.0,
@@ -803,7 +803,7 @@
         212.76,
         241.44,
         256.68,
-        0.0,
+        250.31,
         0.0,
         0.0,
         0.0,
@@ -841,8 +841,8 @@
         0,
         0
       ],
-      "last_updated": "2026-04-10 12:49 SAST",
-      "last_hour": 12
+      "last_updated": "2026-04-10 13:59 SAST",
+      "last_hour": 13
     }
   },
   "thresholds": {
@@ -853,12 +853,12 @@
     "min_history_days": 7
   },
   "debug": {
-    "curve_fraction": 0.636,
-    "expected_by_now": 1033.5,
-    "irrad_factor": 1.141,
-    "actual_kwh": 954.01,
-    "pace_trigger": 310.0,
-    "projected_total": 1500.0,
+    "curve_fraction": 0.762,
+    "expected_by_now": 1227.1,
+    "irrad_factor": 1.132,
+    "actual_kwh": 1204.32,
+    "pace_trigger": 368.1,
+    "projected_total": 1581.0,
     "daily_min": 786.3,
     "sunrise": 6.3,
     "sunset": 17.7,
