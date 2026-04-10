@@ -1,9 +1,9 @@
 {
   "plant": "WG Circular Business Park",
-  "last_updated": "2026-04-10 13:59 SAST",
+  "last_updated": "2026-04-10 15:46 SAST",
   "date": "2026-04-10",
-  "total_kwh": 287.06,
-  "last_hour": 13,
+  "total_kwh": 381.72,
+  "last_hour": 15,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -26,8 +26,8 @@
       59.1,
       41.41,
       34.34,
-      0.0,
-      0.0,
+      35.05,
+      59.61,
       0.0,
       0.0,
       0.0,
@@ -79,8 +79,8 @@
     59.1,
     41.41,
     34.34,
-    0.0,
-    0.0,
+    35.05,
+    59.61,
     0.0,
     0.0,
     0.0,
@@ -788,7 +788,7 @@
       "last_hour": 18
     },
     "2026-04-10": {
-      "total_kwh": 287.06,
+      "total_kwh": 381.72,
       "hourly": [
         0.0,
         0.0,
@@ -804,8 +804,8 @@
         59.1,
         41.41,
         34.34,
-        0.0,
-        0.0,
+        35.05,
+        59.61,
         0.0,
         0.0,
         0.0,
@@ -841,8 +841,8 @@
         0,
         0
       ],
-      "last_updated": "2026-04-10 13:59 SAST",
-      "last_hour": 13
+      "last_updated": "2026-04-10 15:46 SAST",
+      "last_hour": 15
     }
   },
   "thresholds": {
@@ -853,12 +853,12 @@
     "min_history_days": 7
   },
   "debug": {
-    "curve_fraction": 0.762,
-    "expected_by_now": 376.7,
-    "irrad_factor": 0.979,
-    "actual_kwh": 287.06,
-    "pace_trigger": 113.0,
-    "projected_total": 376.8,
+    "curve_fraction": 0.946,
+    "expected_by_now": 454.8,
+    "irrad_factor": 0.952,
+    "actual_kwh": 381.72,
+    "pace_trigger": 136.4,
+    "projected_total": 403.5,
     "daily_min": 307.9,
     "sunrise": 6.3,
     "sunset": 17.7,
