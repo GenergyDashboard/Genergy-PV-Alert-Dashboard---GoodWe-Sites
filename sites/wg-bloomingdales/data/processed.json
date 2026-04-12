@@ -1,9 +1,9 @@
 {
   "plant": "WG Bloomingdales",
-  "last_updated": "2026-04-12 15:24 SAST",
+  "last_updated": "2026-04-12 16:56 SAST",
   "date": "2026-04-12",
-  "total_kwh": 0.0,
-  "last_hour": 0,
+  "total_kwh": 6.49,
+  "last_hour": 16,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -28,7 +28,7 @@
       0.0,
       0.0,
       0.0,
-      0.0,
+      6.49,
       0.0,
       0.0,
       0.0,
@@ -81,7 +81,7 @@
     0.0,
     0.0,
     0.0,
-    0.0,
+    6.49,
     0.0,
     0.0,
     0.0,
@@ -503,7 +503,7 @@
       "last_hour": 18
     },
     "2026-04-12": {
-      "total_kwh": 0.0,
+      "total_kwh": 6.49,
       "hourly": [
         0.0,
         0.0,
@@ -521,7 +521,7 @@
         0.0,
         0.0,
         0.0,
-        0.0,
+        6.49,
         0.0,
         0.0,
         0.0,
@@ -556,8 +556,8 @@
         0,
         0
       ],
-      "last_updated": "2026-04-12 15:24 SAST",
-      "last_hour": 0
+      "last_updated": "2026-04-12 16:56 SAST",
+      "last_hour": 16
     }
   },
   "thresholds": {
@@ -568,7 +568,7 @@
     "min_history_days": 7
   },
   "debug": {
-    "reason": "nighttime",
+    "reason": "bootstrap (3/7)",
     "sample_days": 3
   }
 }
