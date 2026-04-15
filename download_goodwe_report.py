@@ -59,25 +59,61 @@ def search_and_select_station(page, station_name):
     search_box.fill("")
     human_delay(0.5, 1)
 
-    # Type the station name
+    # Type the station name and search
     search_box.fill(station_name)
-    human_delay(0.5, 1)
+    human_delay(1, 2)
 
-    # Click the search icon (magnifying glass next to input)
+    # Click the search icon
     page.locator(".ant-input-suffix > .index-module_wrap_640bd > img").click()
-    human_delay(2, 3)
+    human_delay(3, 5)  # longer wait for search results to filter
 
-    # Tick the checkbox for the result
+    # Find the tree node that contains this station name and click its checkbox
+    # The search highlights but doesn't filter, so we need to target the specific node
     try:
-        page.locator(".ant-tree-checkbox-inner").click(timeout=5000)
-        print(f"    ✅ Selected: '{station_name}'")
-    except Exception as e:
-        print(f"    ⚠️  Could not select '{station_name}': {e}")
+        # Strategy 1: Find the tree node by title/text matching the station name,
+        # then click the checkbox within that node
+        node = page.locator(f".ant-tree-treenode").filter(has_text=station_name).first
+        checkbox = node.locator(".ant-tree-checkbox-inner")
+        checkbox.click(timeout=5000)
+        print(f"    ✅ Selected: '{station_name}' (via tree node filter)")
+    except Exception as e1:
         try:
-            safe_name = station_name.replace(" ", "_").replace("/", "_")
-            page.screenshot(path=f"error_select_{safe_name}.png")
-        except Exception:
-            pass
+            # Strategy 2: If search actually filtered to 1 result, use first checkbox
+            checkboxes = page.locator(".ant-tree-checkbox-inner")
+            count = checkboxes.count()
+            if count == 1:
+                checkboxes.first.click(timeout=5000)
+                print(f"    ✅ Selected: '{station_name}' (single result)")
+            else:
+                # Strategy 3: Look for exact text match in tree node titles
+                node = page.locator(f"[title='{station_name}']").first
+                parent = node.locator("xpath=ancestor::*[contains(@class,'ant-tree-treenode')]").first
+                parent.locator(".ant-tree-checkbox-inner").click(timeout=5000)
+                print(f"    ✅ Selected: '{station_name}' (via title attr)")
+        except Exception as e2:
+            try:
+                # Strategy 4: Use the text content to find the right row
+                # Get all tree nodes and find the one matching our station
+                nodes = page.locator(".ant-tree-treenode")
+                node_count = nodes.count()
+                found = False
+                for idx in range(node_count):
+                    node = nodes.nth(idx)
+                    text = node.inner_text()
+                    if station_name.lower() in text.lower():
+                        node.locator(".ant-tree-checkbox-inner").click(timeout=3000)
+                        print(f"    ✅ Selected: '{station_name}' (via text scan, node {idx})")
+                        found = True
+                        break
+                if not found:
+                    raise Exception(f"No matching tree node found among {node_count} nodes")
+            except Exception as e3:
+                print(f"    ⚠️  Could not select '{station_name}': {e3}")
+                try:
+                    safe = station_name.replace(" ", "_").replace("/", "_")
+                    page.screenshot(path=f"error_select_{safe}.png")
+                except Exception:
+                    pass
 
     human_delay(0.5, 1)
 
@@ -126,7 +162,7 @@ def download_goodwe_report():
             page.goto(LOGIN_URL, wait_until="networkidle", timeout=60000)
             human_delay(3, 5)
 
-            # Accept cookies if prompted (before login)
+            # Accept cookies if prompted
             try:
                 page.get_by_role("button", name="Accept cookies").click(timeout=5000)
                 print("  🍪 Accepted cookies")
@@ -148,7 +184,7 @@ def download_goodwe_report():
 
             page.get_by_role("button", name="Login").click()
             page.wait_for_load_state("networkidle", timeout=60000)
-            human_delay(5, 8)
+            human_delay(7, 10)
             print(f"  📍 After login: {page.url[:80]}")
 
             # ── Step 2: Report Center ──────────────────────────────────
@@ -158,7 +194,7 @@ def download_goodwe_report():
 
             print("  📋 Selecting Station Report...")
             page.get_by_text("Station ReportGeneration and").click()
-            human_delay(3, 5)
+            human_delay(4, 6)
 
             # ── Step 3: Search and select each station ─────────────────
             print(f"🏢 Step 4: Selecting {len(STATIONS)} stations...")
