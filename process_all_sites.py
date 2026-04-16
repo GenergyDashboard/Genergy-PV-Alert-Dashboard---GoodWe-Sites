@@ -1,24 +1,18 @@
 """
-process_all_sites.py
+process_all_sites.py  —  GoodWe Multi-Site Processor
 
 Parses the GoodWe Station Operation Report (single xlsx with all sites)
 and produces per-site dashboard JSON files.
 
-For each site:
-- Extracts hourly PV Power (kW) from the report
-- Fetches irradiation from Open-Meteo API
-- Maintains rolling 30-day history
-- Calculates statistics (avg, min, max, percentiles)
-- Sends Telegram alerts for underperformance
-- Writes dashboard-ready processed.json
-
-All thresholds are purely data-driven (no hardcoded values).
+Status uses cumulative-hourly-avg logic, matching the dashboard "% of avg" badge.
+Irradiation fetch has retry + sanity check to avoid flat zero lines.
 """
 
 import json
 import math
 import sys
 import os
+import time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -87,9 +81,7 @@ OFFLINE_THRESHOLD  = 0.01
 HISTORY_DAYS       = 30
 MIN_HISTORY_DAYS   = 7
 
-# GoodWe SEMS+ (hk-semsplus.goodwe.com) reports in Hong Kong Time (UTC+8).
-# SAST is UTC+2. Offset to apply: SAST - HKT = 2 - 8 = -6 hours.
-# i.e. 13:00 HKT = 07:00 SAST.
+# GoodWe data is already in SAST
 REPORT_TZ_OFFSET   = 0
 
 _HERE       = Path(__file__).parent
@@ -125,48 +117,50 @@ def solar_curve_fraction(hour: int, month: int) -> float:
 
 
 # =============================================================================
-# Irradiation
+# Irradiation — with retry & sanity check
 # =============================================================================
 
 def fetch_irradiation(date_str: str, lat: float, lon: float) -> list:
-    try:
-        resp = requests.get(
-            "https://api.open-meteo.com/v1/forecast",
-            params={
-                "latitude": lat, "longitude": lon,
-                "hourly": "shortwave_radiation",
-                "timezone": "Africa/Johannesburg",
-                "start_date": date_str, "end_date": date_str,
-            },
-            timeout=15,
-        )
-        resp.raise_for_status()
-        irrad = resp.json().get("hourly", {}).get("shortwave_radiation", [])
-        while len(irrad) < 24:
-            irrad.append(0)
-        return [round(v if v else 0, 1) for v in irrad[:24]]
-    except Exception as e:
-        print(f"    ⚠️  Irradiation fetch failed: {e}")
-        return [0] * 24
+    """Fetch hourly irradiation from Open-Meteo with 3 retries and sanity check."""
+    last_err = None
+    for attempt in range(3):
+        try:
+            resp = requests.get(
+                "https://api.open-meteo.com/v1/forecast",
+                params={
+                    "latitude": lat, "longitude": lon,
+                    "hourly": "shortwave_radiation",
+                    "timezone": "Africa/Johannesburg",
+                    "start_date": date_str, "end_date": date_str,
+                },
+                timeout=20,
+            )
+            resp.raise_for_status()
+            irrad = resp.json().get("hourly", {}).get("shortwave_radiation", [])
+            while len(irrad) < 24:
+                irrad.append(0)
+            result = [round(v if v else 0, 1) for v in irrad[:24]]
+            midday = sum(result[10:15])
+            if midday < 10:
+                raise ValueError(f"Midday irradiation suspiciously low: {midday:.1f} W/m²")
+            return result
+        except Exception as e:
+            last_err = e
+            print(f"    ⚠️  Irradiation fetch attempt {attempt+1}/3 failed: {e}")
+            if attempt < 2:
+                time.sleep(2 * (attempt + 1))
+    print(f"    ❌ Irradiation unavailable after 3 attempts: {last_err}")
+    return [0] * 24
 
 
 # =============================================================================
-# Parse GoodWe xlsx — extract PV Power for all sites
+# Parse GoodWe xlsx
 # =============================================================================
 
 def parse_goodwe_report(filepath: Path) -> dict:
-    """
-    Parse the GoodWe Station Operation Report.
-    Returns dict of {station_name: {"hourly": [24 floats], "date": str}}
-
-    Dynamically finds hour columns from the header row rather than
-    hardcoding column positions, so it survives layout changes.
-    """
     df = pd.read_excel(filepath, header=None, sheet_name=0)
-
     print(f"  📐 Sheet dimensions: {df.shape[0]} rows × {df.shape[1]} cols")
 
-    # ── Find the report date ──────────────────────────────────────
     report_date = None
     for row_idx in range(min(5, len(df))):
         cell = str(df.iloc[row_idx, 0]) if not pd.isna(df.iloc[row_idx, 0]) else ""
@@ -178,15 +172,12 @@ def parse_goodwe_report(filepath: Path) -> dict:
             except Exception:
                 pass
             break
-
     if not report_date:
         report_date = datetime.now(SAST).strftime("%Y-%m-%d")
     print(f"  📅 Report date: {report_date}")
 
-    # ── Find the header row and map hour columns dynamically ──────
     header_row_idx = None
-    hour_col_map = {}  # {hour_int: column_index}
-
+    hour_col_map = {}
     for row_idx in range(min(10, len(df))):
         row_vals = [str(v).strip() if not pd.isna(v) else "" for v in df.iloc[row_idx].tolist()]
         found_hours = {}
@@ -202,25 +193,17 @@ def parse_goodwe_report(filepath: Path) -> dict:
 
     if header_row_idx is None or not hour_col_map:
         print("  ❌ Could not find hour column headers in xlsx!")
-        for r in range(min(5, len(df))):
-            print(f"     Row {r}: {df.iloc[r].tolist()[:8]}...")
         return {}
 
     print(f"  📊 Header row: {header_row_idx} | {len(hour_col_map)} hour columns found")
-    print(f"     00:00→col {hour_col_map.get(0, '?')} | "
-          f"06:00→col {hour_col_map.get(6, '?')} | "
-          f"12:00→col {hour_col_map.get(12, '?')} | "
-          f"23:00→col {hour_col_map.get(23, '?')}")
 
-    # ── Find the Indicator column ─────────────────────────────────
-    indicator_col = 1  # default
+    indicator_col = 1
     row_vals = [str(v).strip().lower() if not pd.isna(v) else "" for v in df.iloc[header_row_idx].tolist()]
     for col_idx, val in enumerate(row_vals):
         if val == "indicator":
             indicator_col = col_idx
             break
 
-    # ── Extract PV Power rows ─────────────────────────────────────
     results = {}
     data_start = header_row_idx + 1
 
@@ -237,8 +220,6 @@ def parse_goodwe_report(filepath: Path) -> dict:
         if not station_name:
             continue
 
-        # Read hourly values using the dynamic column map
-        # Apply timezone offset: report is in HKT (UTC+8), convert to SAST (UTC+2)
         raw_hourly = [0.0] * 24
         for hour_int, col_idx in hour_col_map.items():
             if col_idx < len(df.columns):
@@ -248,18 +229,14 @@ def parse_goodwe_report(filepath: Path) -> dict:
                 except (ValueError, TypeError):
                     raw_hourly[hour_int] = 0.0
 
-        # Shift from HKT to SAST
         hourly = [0.0] * 24
         for hkt_hour in range(24):
             sast_hour = hkt_hour + REPORT_TZ_OFFSET
-            # Only keep hours that fall within the same SAST calendar day (0-23)
-            # HKT hours 0-5 map to previous SAST day (discard)
             if 0 <= sast_hour <= 23:
                 hourly[sast_hour] = raw_hourly[hkt_hour]
 
         total = round(sum(hourly), 3)
 
-        # Find last non-zero hour
         last_hour = 0
         for h in range(23, -1, -1):
             if hourly[h] > 0:
@@ -273,7 +250,6 @@ def parse_goodwe_report(filepath: Path) -> dict:
             "last_hour": last_hour,
         }
 
-        # Debug: show first few non-zero hours
         nonzero = [(h, hourly[h]) for h in range(24) if hourly[h] > 0]
         nz_preview = ", ".join(f"{h:02d}:00={v:.1f}" for h, v in nonzero[:5])
         if len(nonzero) > 5:
@@ -284,7 +260,7 @@ def parse_goodwe_report(filepath: Path) -> dict:
 
 
 # =============================================================================
-# History & stats (reused from FusionSolar pattern)
+# History & stats
 # =============================================================================
 
 def load_history(history_file: Path) -> dict:
@@ -387,7 +363,7 @@ def calculate_stats(history: dict, exclude_date: str = None) -> dict:
 
 
 # =============================================================================
-# Status checks
+# Status — CUMULATIVE HOURLY AVG (matches dashboard "% of avg")
 # =============================================================================
 
 def determine_status(data: dict, month: int, stats: dict, irradiation: list = None) -> tuple:
@@ -411,37 +387,44 @@ def determine_status(data: dict, month: int, stats: dict, irradiation: list = No
     if sample_days < MIN_HISTORY_DAYS:
         return "ok", alerts, {"reason": f"bootstrap ({sample_days}/{MIN_HISTORY_DAYS})", "sample_days": sample_days}
 
-    effective_expected = stats["daily_avg"]
+    hourly_avg      = stats.get("hourly_avg", [0] * 24)
+    expected_by_now = sum(hourly_avg[:hour + 1])
+
     irrad_factor = 1.0
     if irradiation and stats.get("hourly_irrad_avg"):
         avg_irrad = stats["hourly_irrad_avg"]
-        today_cum = sum(irradiation[:hour+1])
-        avg_cum   = sum(avg_irrad[:hour+1])
+        today_cum = sum(irradiation[:hour + 1])
+        avg_cum   = sum(avg_irrad[:hour + 1])
         if avg_cum > 0:
             irrad_factor = max(min(today_cum / avg_cum, 1.5), 0.1)
 
-    expected_by_now = effective_expected * curve_frac * irrad_factor
-    pace_trigger    = expected_by_now * PACE_THRESHOLD_PCT
-    projected_total = total / curve_frac if curve_frac > 0 else 0
+    effective_expected = expected_by_now * irrad_factor
+    pace_trigger       = effective_expected * PACE_THRESHOLD_PCT
+    pct_of_avg         = round((total / expected_by_now) * 100) if expected_by_now > 0 else 0
 
     if total < pace_trigger:
         alerts["pace_low"] = True
-    daily_min = stats["daily_min"]
-    adjusted_min = daily_min * irrad_factor if irrad_factor < 1.0 else daily_min
+
+    projected_total = total / curve_frac if curve_frac > 0 else 0
+    daily_min       = stats.get("daily_min", 0)
+    adjusted_min    = daily_min * irrad_factor if irrad_factor < 1.0 else daily_min
     if projected_total < adjusted_min:
         alerts["total_low"] = True
 
     status = "low" if (alerts["pace_low"] or alerts["total_low"]) else "ok"
     return status, alerts, {
-        "curve_fraction": round(curve_frac, 3),
-        "expected_by_now": round(expected_by_now, 1),
-        "irrad_factor": round(irrad_factor, 3),
-        "actual_kwh": round(total, 2),
-        "pace_trigger": round(pace_trigger, 1),
-        "projected_total": round(projected_total, 1),
-        "daily_min": daily_min,
-        "sunrise": round(sunrise, 2), "sunset": round(sunset, 2),
-        "sample_days": sample_days,
+        "pct_of_avg":         pct_of_avg,
+        "expected_by_now":    round(expected_by_now, 1),
+        "effective_expected": round(effective_expected, 1),
+        "irrad_factor":       round(irrad_factor, 3),
+        "actual_kwh":         round(total, 2),
+        "pace_trigger":       round(pace_trigger, 1),
+        "projected_total":    round(projected_total, 1),
+        "daily_min":          daily_min,
+        "curve_fraction":     round(curve_frac, 3),
+        "sunrise":            round(sunrise, 2),
+        "sunset":             round(sunset, 2),
+        "sample_days":        sample_days,
     }
 
 
@@ -527,7 +510,6 @@ def main():
     now   = datetime.now(SAST)
     month = now.month
 
-    # Parse the single xlsx
     print(f"📥 Reading: {RAW_FILE}")
     all_sites = parse_goodwe_report(RAW_FILE)
 
@@ -535,7 +517,6 @@ def main():
         print("❌ No PV Power data found in report")
         sys.exit(1)
 
-    # ── Validate site list against expected registry ──────────────
     expected_names = set(SITES.keys())
     found_names    = set(all_sites.keys())
     missing_sites  = expected_names - found_names
@@ -549,40 +530,23 @@ def main():
             print(f"       + {name}")
         send_telegram(
             f"⚠️ <b>GoodWe Report — New/Unknown Sites</b>\n"
-            f"The following sites appeared in the report but are not registered:\n\n"
             + "\n".join(f"  • {n}" for n in sorted(unknown_sites))
-            + "\n\nThey will be skipped. Add them to SITES in process_all_sites.py if needed."
         )
 
     if missing_sites:
-        missing_list = "\n".join(f"       ⚠️  {n}" for n in sorted(missing_sites))
-        replaced_hint = ""
-        if unknown_sites:
-            replaced_hint = (
-                "\n\n  Possibly replaced by:\n"
-                + "\n".join(f"       ➕ {n}" for n in sorted(unknown_sites))
-            )
-
-        print(f"\n  ⚠️  MISSING SITES — expected but not in report ({len(missing_sites)}):")
-        print(missing_list)
-        if replaced_hint:
-            print(replaced_hint)
+        print(f"\n  ⚠️  MISSING SITES ({len(missing_sites)}):")
+        for name in sorted(missing_sites):
+            print(f"       ⚠️  {name}")
         print(f"  ℹ️  Continuing with {len(found_names)} available sites...")
 
         send_telegram(
             f"⚠️ <b>GoodWe Report — Missing Sites</b>\n"
             f"Expected {len(expected_names)} sites but {len(missing_sites)} missing.\n\n"
-            f"<b>Missing:</b>\n"
             + "\n".join(f"  ⚠️ {n}" for n in sorted(missing_sites))
-            + (
-                "\n\n<b>Unexpected (possible replacements):</b>\n"
-                + "\n".join(f"  ➕ {n}" for n in sorted(unknown_sites))
-                if unknown_sites else ""
-            )
-            + "\n\nProcessing available sites. Missing sites may be offline on the GoodWe portal."
         )
     else:
         print(f"  ✅ All {len(expected_names)} expected sites present")
+
     print(f"\n📊 Processing {len(found_names)} sites...\n")
 
     for station_name, site_data in all_sites.items():
@@ -601,10 +565,8 @@ def main():
 
         print(f"  ── {station_name} ({slug}) ──")
 
-        # Fetch irradiation
         irradiation = fetch_irradiation(site_data["date"], lat, lon)
 
-        # Load & update history
         history = load_history(history_file)
         history[site_data["date"]] = {
             "total_kwh":    site_data["total_kwh"],
@@ -615,19 +577,14 @@ def main():
         }
         save_history(history, history_file)
 
-        # Stats
         stats = calculate_stats(history, exclude_date=site_data["date"])
-
-        # Status
         status, alerts, debug = determine_status(site_data, month, stats, irradiation)
 
         print(f"    ⚡ {site_data['total_kwh']:.1f} kWh | Avg: {stats['daily_avg']:.1f} | "
               f"Days: {stats['sample_days']} | Status: {status.upper()}")
 
-        # Alerts
         send_alerts(station_name, status, alerts, site_data, debug, state_file)
 
-        # Write dashboard JSON
         output = {
             "plant":        station_name,
             "last_updated": now.strftime("%Y-%m-%d %H:%M SAST"),
