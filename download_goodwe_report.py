@@ -7,9 +7,6 @@ Searches for each station by name to ensure the correct sites are selected.
 Environment variables (set as GitHub secrets):
   GOODWE_USERNAME  - GoodWe SEMS+ email
   GOODWE_PASSWORD  - GoodWe SEMS+ password
-
-To add a new station, simply add its name to the STATIONS list below.
-The name must match exactly how it appears in GoodWe SEMS+.
 """
 
 import time
@@ -34,9 +31,6 @@ STATIONS = [
     "WG Wellington square",
 ]
 
-# =============================================================================
-# CONFIG
-# =============================================================================
 GOODWE_BASE = "https://hk-semsplus.goodwe.com"
 LOGIN_URL   = f"{GOODWE_BASE}/#/login"
 OUTPUT_FILE = Path(__file__).parent / "data" / "raw_report.xlsx"
@@ -53,65 +47,56 @@ def search_and_select_station(page, station_name):
     print(f"    🔎 Searching: '{station_name}'...")
 
     search_box = page.get_by_role("textbox", name="Station Name")
-
-    # Clear the search box
     search_box.click()
     search_box.fill("")
     human_delay(0.5, 1)
-
-    # Type the station name and search
     search_box.fill(station_name)
     human_delay(1, 2)
 
-    # Click the search icon
-    page.locator(".ant-input-suffix > .index-module_wrap_640bd > img").click()
-    human_delay(3, 5)  # longer wait for search results to filter
-
-    # Find the tree node that contains this station name and click its checkbox
-    # The search highlights but doesn't filter, so we need to target the specific node
     try:
-        # Strategy 1: Find the tree node by title/text matching the station name,
-        # then click the checkbox within that node
-        node = page.locator(f".ant-tree-treenode").filter(has_text=station_name).first
+        page.locator(".ant-input-suffix > .index-module_wrap_640bd > img").click()
+    except Exception:
+        try:
+            page.locator(".ant-input-suffix img").first.click()
+        except Exception:
+            search_box.press("Enter")
+    human_delay(3, 5)
+
+    try:
+        node = page.locator(".ant-tree-treenode").filter(has_text=station_name).first
         checkbox = node.locator(".ant-tree-checkbox-inner")
         checkbox.click(timeout=5000)
         print(f"    ✅ Selected: '{station_name}' (via tree node filter)")
-    except Exception as e1:
+    except Exception:
         try:
-            # Strategy 2: If search actually filtered to 1 result, use first checkbox
-            checkboxes = page.locator(".ant-tree-checkbox-inner")
+            checkboxes = page.locator(".ant-tree-checkbox:not(.ant-tree-checkbox-checked) .ant-tree-checkbox-inner")
             count = checkboxes.count()
             if count == 1:
                 checkboxes.first.click(timeout=5000)
-                print(f"    ✅ Selected: '{station_name}' (single result)")
+                print(f"    ✅ Selected: '{station_name}' (single unchecked)")
             else:
-                # Strategy 3: Look for exact text match in tree node titles
                 node = page.locator(f"[title='{station_name}']").first
                 parent = node.locator("xpath=ancestor::*[contains(@class,'ant-tree-treenode')]").first
                 parent.locator(".ant-tree-checkbox-inner").click(timeout=5000)
                 print(f"    ✅ Selected: '{station_name}' (via title attr)")
-        except Exception as e2:
+        except Exception:
             try:
-                # Strategy 4: Use the text content to find the right row
-                # Get all tree nodes and find the one matching our station
                 nodes = page.locator(".ant-tree-treenode")
-                node_count = nodes.count()
                 found = False
-                for idx in range(node_count):
+                for idx in range(nodes.count()):
                     node = nodes.nth(idx)
                     text = node.inner_text()
                     if station_name.lower() in text.lower():
                         node.locator(".ant-tree-checkbox-inner").click(timeout=3000)
-                        print(f"    ✅ Selected: '{station_name}' (via text scan, node {idx})")
+                        print(f"    ✅ Selected: '{station_name}' (via text scan)")
                         found = True
                         break
                 if not found:
-                    raise Exception(f"No matching tree node found among {node_count} nodes")
-            except Exception as e3:
-                print(f"    ⚠️  Could not select '{station_name}': {e3}")
+                    raise Exception(f"No matching tree node found")
+            except Exception as e:
+                print(f"    ⚠️  Could not select '{station_name}': {e}")
                 try:
-                    safe = station_name.replace(" ", "_").replace("/", "_")
-                    page.screenshot(path=f"error_select_{safe}.png")
+                    page.screenshot(path=f"error_select_{station_name.replace(' ','_')}.png")
                 except Exception:
                     pass
 
@@ -179,29 +164,101 @@ def download_goodwe_report():
             page.get_by_role("textbox", name="Password").fill(password)
             human_delay(1, 2)
 
-            page.get_by_role("checkbox", name="I have read and agreed to the").check()
-            human_delay(0.5, 1)
+            try:
+                page.get_by_role("checkbox", name="I have read and agreed to the").check()
+                human_delay(0.5, 1)
+            except Exception:
+                pass
 
             page.get_by_role("button", name="Login").click()
             page.wait_for_load_state("networkidle", timeout=60000)
-            human_delay(7, 10)
-            print(f"  📍 After login: {page.url[:80]}")
+            human_delay(10, 15)
 
-            # ── Step 2: Report Center ──────────────────────────────────
+            # Verify login — wait for URL to change from /#/login
+            for attempt in range(3):
+                current_url = page.url
+                print(f"  📍 URL check {attempt+1}: {current_url[:80]}")
+                if "/login" not in current_url:
+                    print("  ✅ Login successful")
+                    break
+                if attempt < 2:
+                    print("  ⚠️  Still on login page — waiting...")
+                    human_delay(8, 12)
+                    # Try clicking Login again in case first click didn't register
+                    try:
+                        page.get_by_role("button", name="Login").click(timeout=3000)
+                        page.wait_for_load_state("networkidle", timeout=30000)
+                        human_delay(8, 12)
+                    except Exception:
+                        pass
+            else:
+                # Last resort: navigate directly to dashboard
+                print("  ⚠️  Login may have failed — trying direct navigation...")
+                page.goto(f"{GOODWE_BASE}/#/dashboard", wait_until="networkidle", timeout=60000)
+                human_delay(5, 8)
+                print(f"  📍 After direct nav: {page.url[:80]}")
+
+            # ── Step 3: Navigate to Report Center ──────────────────────
             print("📊 Step 3: Opening Report Center...")
-            page.get_by_role("menuitem", name="Report Center").get_by_role("img").click()
-            human_delay(3, 5)
 
-            print("  📋 Selecting Station Report...")
-            page.get_by_text("Station ReportGeneration and").click()
+            # Try direct URL navigation first (most reliable)
+            try:
+                page.goto(f"{GOODWE_BASE}/#/report/station", wait_until="networkidle", timeout=60000)
+                human_delay(5, 8)
+                print(f"  ✅ Navigated to report page directly")
+                print(f"  📍 URL: {page.url[:80]}")
+            except Exception as nav_err:
+                print(f"  ⚠️  Direct navigation failed: {nav_err}")
+                # Fallback: try menu clicking
+                selectors = [
+                    ("menuitem 'Report Center'", lambda: page.get_by_role("menuitem", name="Report Center").get_by_role("img").click()),
+                    ("text 'Report Center'", lambda: page.get_by_text("Report Center").first.click()),
+                    ("sidebar report", lambda: page.locator("li:has-text('Report Center')").first.click()),
+                ]
+                for name, action in selectors:
+                    try:
+                        action()
+                        print(f"  ✅ Report Center opened via: {name}")
+                        break
+                    except Exception:
+                        continue
+
             human_delay(4, 6)
 
-            # ── Step 3: Search and select each station ─────────────────
+            # ── Step 4: Select Station Report ──────────────────────────
+            print("  📋 Selecting Station Report...")
+            sr_selectors = [
+                ("text 'Station ReportGeneration'", lambda: page.get_by_text("Station ReportGeneration and").click()),
+                ("text 'Station Report' exact", lambda: page.get_by_text("Station Report", exact=True).click()),
+                ("text 'Station Report' first", lambda: page.get_by_text("Station Report").first.click()),
+                ("locator has-text", lambda: page.locator("[class*='card']:has-text('Station Report')").first.click()),
+                ("locator div has-text", lambda: page.locator("div:has-text('Station Report')").nth(0).click()),
+            ]
+            station_report_found = False
+            for name, action in sr_selectors:
+                try:
+                    action()
+                    print(f"  ✅ Station Report selected via: {name}")
+                    station_report_found = True
+                    break
+                except Exception:
+                    continue
+
+            if not station_report_found:
+                page.screenshot(path="error_station_report.png", full_page=True)
+                # Log what's visible for debugging
+                visible_text = page.locator("body").inner_text()[:500]
+                print(f"  ❌ Could not find Station Report. Page text: {visible_text[:200]}")
+                raise RuntimeError("Could not find Station Report option")
+
+            human_delay(4, 6)
+
+            # ── Step 5: Select stations ────────────────────────────────
             print(f"🏢 Step 4: Selecting {len(STATIONS)} stations...")
             for station in STATIONS:
                 search_and_select_station(page, station)
 
-            # ── Step 4: Configure report ───────────────────────────────
+            # ── Step 6: Configure report ───────────────────────────────
             print("⚙️  Step 5: Configuring report...")
             page.get_by_text("Operational Report").click()
             human_delay(2, 3)
@@ -212,7 +269,7 @@ def download_goodwe_report():
             page.get_by_text("60 min").click()
             human_delay(2, 3)
 
-            # ── Step 5: Generate and Download ──────────────────────────
+            # ── Step 7: Generate and Download ──────────────────────────
             print("📤 Step 6: Generating report...")
             page.locator("div:nth-child(2) > .index-module_wrap_640bd > img").click()
             human_delay(3, 5)
