@@ -201,54 +201,64 @@ def download_goodwe_report():
             # ── Step 3: Navigate to Report Center ──────────────────────
             print("📊 Step 3: Opening Report Center...")
 
-            # Try direct URL navigation first (most reliable)
-            try:
-                page.goto(f"{GOODWE_BASE}/#/report/station", wait_until="networkidle", timeout=60000)
-                human_delay(5, 8)
-                print(f"  ✅ Navigated to report page directly")
-                print(f"  📍 URL: {page.url[:80]}")
-            except Exception as nav_err:
-                print(f"  ⚠️  Direct navigation failed: {nav_err}")
-                # Fallback: try menu clicking
-                selectors = [
-                    ("menuitem 'Report Center'", lambda: page.get_by_role("menuitem", name="Report Center").get_by_role("img").click()),
-                    ("text 'Report Center'", lambda: page.get_by_text("Report Center").first.click()),
-                    ("sidebar report", lambda: page.locator("li:has-text('Report Center')").first.click()),
-                ]
-                for name, action in selectors:
-                    try:
-                        action()
-                        print(f"  ✅ Report Center opened via: {name}")
-                        break
-                    except Exception:
-                        continue
+            # Click Report Center in the sidebar menu
+            rc_found = False
+            rc_selectors = [
+                ("menuitem img", lambda: page.get_by_role("menuitem", name="Report Center").get_by_role("img").click()),
+                ("menuitem click", lambda: page.get_by_role("menuitem", name="Report Center").click()),
+                ("text exact", lambda: page.get_by_text("Report Center", exact=True).click()),
+                ("text first", lambda: page.get_by_text("Report Center").first.click()),
+                ("li has-text", lambda: page.locator("li:has-text('Report Center')").first.click()),
+                ("a has-text", lambda: page.locator("a:has-text('Report Center')").first.click()),
+                ("span has-text", lambda: page.locator("span:has-text('Report Center')").first.click()),
+            ]
+            for name, action in rc_selectors:
+                try:
+                    action()
+                    print(f"  ✅ Report Center clicked via: {name}")
+                    rc_found = True
+                    break
+                except Exception as e:
+                    print(f"  ⏭️  '{name}' failed: {str(e)[:60]}")
+                    continue
 
+            if not rc_found:
+                page.screenshot(path="error_report_center.png", full_page=True)
+                raise RuntimeError("Could not click Report Center in menu")
+
+            page.wait_for_load_state("networkidle", timeout=30000)
             human_delay(4, 6)
+            print(f"  📍 URL after Report Center: {page.url[:80]}")
 
             # ── Step 4: Select Station Report ──────────────────────────
             print("  📋 Selecting Station Report...")
+
+            # Wait for report page content to load
+            human_delay(3, 5)
+
+            sr_found = False
             sr_selectors = [
                 ("text 'Station ReportGeneration'", lambda: page.get_by_text("Station ReportGeneration and").click()),
                 ("text 'Station Report' exact", lambda: page.get_by_text("Station Report", exact=True).click()),
                 ("text 'Station Report' first", lambda: page.get_by_text("Station Report").first.click()),
-                ("locator has-text", lambda: page.locator("[class*='card']:has-text('Station Report')").first.click()),
-                ("locator div has-text", lambda: page.locator("div:has-text('Station Report')").nth(0).click()),
+                ("locator card", lambda: page.locator("[class*='card']:has-text('Station Report')").first.click()),
+                ("locator div", lambda: page.locator("div:has-text('Station Report')").nth(1).click()),
+                ("first clickable card", lambda: page.locator("[class*='report'] [class*='card'], [class*='report'] [class*='item']").first.click()),
             ]
-            station_report_found = False
             for name, action in sr_selectors:
                 try:
                     action()
                     print(f"  ✅ Station Report selected via: {name}")
-                    station_report_found = True
+                    sr_found = True
                     break
-                except Exception:
+                except Exception as e:
+                    print(f"  ⏭️  '{name}' failed: {str(e)[:60]}")
                     continue
 
-            if not station_report_found:
+            if not sr_found:
                 page.screenshot(path="error_station_report.png", full_page=True)
-                # Log what's visible for debugging
-                visible_text = page.locator("body").inner_text()[:500]
-                print(f"  ❌ Could not find Station Report. Page text: {visible_text[:200]}")
+                visible = page.locator("body").inner_text()[:300]
+                print(f"  ❌ Page content: {visible}")
                 raise RuntimeError("Could not find Station Report option")
 
             human_delay(4, 6)
