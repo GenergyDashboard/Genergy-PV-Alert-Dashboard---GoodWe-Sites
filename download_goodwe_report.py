@@ -46,8 +46,27 @@ def search_and_select_station(page, station_name):
     """Search for a station by name and tick its checkbox."""
     print(f"    🔎 Searching: '{station_name}'...")
 
-    search_box = page.get_by_role("textbox", name="Station Name")
-    search_box.click()
+    # Find search box with retry — it can disappear after selecting several stations
+    search_box = None
+    for attempt in range(3):
+        try:
+            search_box = page.get_by_role("textbox", name="Station Name")
+            search_box.click(timeout=10000)
+            break
+        except Exception:
+            if attempt < 2:
+                print(f"    ⚠️  Search box not found (attempt {attempt+1}/3) — waiting...")
+                human_delay(3, 5)
+                # Try scrolling up or dismissing any overlay
+                try:
+                    page.keyboard.press("Escape")
+                    human_delay(1, 2)
+                except Exception:
+                    pass
+            else:
+                print(f"    ❌ Search box unavailable for '{station_name}' — skipping")
+                return
+
     search_box.fill("")
     human_delay(0.5, 1)
     search_box.fill(station_name)
