@@ -1,9 +1,9 @@
 {
   "plant": "WG DEBI LEE SPAR",
-  "last_updated": "2026-04-20 12:10 SAST",
+  "last_updated": "2026-04-20 13:58 SAST",
   "date": "2026-04-20",
-  "total_kwh": 924.11,
-  "last_hour": 12,
+  "total_kwh": 1167.36,
+  "last_hour": 13,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -25,7 +25,7 @@
       210.16,
       246.51,
       243.36,
-      0.0,
+      243.25,
       0.0,
       0.0,
       0.0,
@@ -38,7 +38,6 @@
       0.0
     ],
     "irradiation": [
-      0.0,
       0.0,
       0,
       0,
@@ -61,6 +60,7 @@
       0,
       0,
       0,
+      0,
       0
     ]
   },
@@ -78,7 +78,7 @@
     210.16,
     246.51,
     243.36,
-    0.0,
+    243.25,
     0.0,
     0.0,
     0.0,
@@ -91,7 +91,6 @@
     0.0
   ],
   "irradiation": [
-    0.0,
     0.0,
     0,
     0,
@@ -110,6 +109,7 @@
     387.0,
     187.0,
     24.0,
+    0,
     0,
     0,
     0,
@@ -1358,7 +1358,7 @@
       "last_hour": 18
     },
     "2026-04-20": {
-      "total_kwh": 924.11,
+      "total_kwh": 1167.36,
       "hourly": [
         0.0,
         0.0,
@@ -1373,7 +1373,7 @@
         210.16,
         246.51,
         243.36,
-        0.0,
+        243.25,
         0.0,
         0.0,
         0.0,
@@ -1386,7 +1386,6 @@
         0.0
       ],
       "irradiation": [
-        0.0,
         0.0,
         0,
         0,
@@ -1409,10 +1408,11 @@
         0,
         0,
         0,
+        0,
         0
       ],
-      "last_updated": "2026-04-20 12:10 SAST",
-      "last_hour": 12
+      "last_updated": "2026-04-20 13:58 SAST",
+      "last_hour": 13
     }
   },
   "thresholds": {
@@ -1423,15 +1423,15 @@
     "min_history_days": 7
   },
   "debug": {
-    "pct_of_avg": 128,
-    "expected_by_now": 723.2,
-    "effective_expected": 732.0,
-    "irrad_factor": 1.012,
-    "actual_kwh": 924.11,
-    "pace_trigger": 219.6,
-    "projected_total": 1453.0,
+    "pct_of_avg": 126,
+    "expected_by_now": 924.2,
+    "effective_expected": 1174.3,
+    "irrad_factor": 1.271,
+    "actual_kwh": 1167.36,
+    "pace_trigger": 352.3,
+    "projected_total": 1532.5,
     "daily_min": 781.9,
-    "curve_fraction": 0.636,
+    "curve_fraction": 0.762,
     "sunrise": 6.3,
     "sunset": 17.7,
     "sample_days": 18

@@ -1,9 +1,9 @@
 {
   "plant": "BMI Isuzu",
-  "last_updated": "2026-04-20 12:10 SAST",
+  "last_updated": "2026-04-20 13:58 SAST",
   "date": "2026-04-20",
-  "total_kwh": 1799.45,
-  "last_hour": 12,
+  "total_kwh": 2273.83,
+  "last_hour": 13,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -25,7 +25,7 @@
       427.82,
       474.51,
       498.35,
-      0.0,
+      474.38,
       0.0,
       0.0,
       0.0,
@@ -38,7 +38,6 @@
       0.0
     ],
     "irradiation": [
-      0.0,
       0.0,
       0,
       0,
@@ -61,6 +60,7 @@
       0,
       0,
       0,
+      0,
       0
     ]
   },
@@ -78,7 +78,7 @@
     427.82,
     474.51,
     498.35,
-    0.0,
+    474.38,
     0.0,
     0.0,
     0.0,
@@ -91,7 +91,6 @@
     0.0
   ],
   "irradiation": [
-    0.0,
     0.0,
     0,
     0,
@@ -110,6 +109,7 @@
     355.0,
     195.0,
     34.0,
+    0,
     0,
     0,
     0,
@@ -1358,7 +1358,7 @@
       "last_hour": 18
     },
     "2026-04-20": {
-      "total_kwh": 1799.45,
+      "total_kwh": 2273.83,
       "hourly": [
         0.0,
         0.0,
@@ -1373,7 +1373,7 @@
         427.82,
         474.51,
         498.35,
-        0.0,
+        474.38,
         0.0,
         0.0,
         0.0,
@@ -1386,7 +1386,6 @@
         0.0
       ],
       "irradiation": [
-        0.0,
         0.0,
         0,
         0,
@@ -1409,10 +1408,11 @@
         0,
         0,
         0,
+        0,
         0
       ],
-      "last_updated": "2026-04-20 12:10 SAST",
-      "last_hour": 12
+      "last_updated": "2026-04-20 13:58 SAST",
+      "last_hour": 13
     }
   },
   "thresholds": {
@@ -1423,15 +1423,15 @@
     "min_history_days": 7
   },
   "debug": {
-    "pct_of_avg": 135,
-    "expected_by_now": 1330.7,
-    "effective_expected": 1790.4,
-    "irrad_factor": 1.346,
-    "actual_kwh": 1799.45,
-    "pace_trigger": 537.1,
-    "projected_total": 2829.3,
+    "pct_of_avg": 132,
+    "expected_by_now": 1724.2,
+    "effective_expected": 2586.3,
+    "irrad_factor": 1.5,
+    "actual_kwh": 2273.83,
+    "pace_trigger": 775.9,
+    "projected_total": 2985.0,
     "daily_min": 517.4,
-    "curve_fraction": 0.636,
+    "curve_fraction": 0.762,
     "sunrise": 6.3,
     "sunset": 17.7,
     "sample_days": 18

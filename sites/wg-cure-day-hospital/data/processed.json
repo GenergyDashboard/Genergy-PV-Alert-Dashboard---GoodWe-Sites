@@ -1,9 +1,9 @@
 {
   "plant": "WG Cure Day hospital",
-  "last_updated": "2026-04-20 12:10 SAST",
+  "last_updated": "2026-04-20 13:58 SAST",
   "date": "2026-04-20",
-  "total_kwh": 163.14,
-  "last_hour": 12,
+  "total_kwh": 205.55,
+  "last_hour": 13,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -25,7 +25,7 @@
       37.09,
       42.76,
       44.27,
-      0.0,
+      42.41,
       0.0,
       0.0,
       0.0,
@@ -38,7 +38,6 @@
       0.0
     ],
     "irradiation": [
-      0.0,
       0.0,
       0,
       0,
@@ -61,6 +60,7 @@
       0,
       0,
       0,
+      0,
       0
     ]
   },
@@ -78,7 +78,7 @@
     37.09,
     42.76,
     44.27,
-    0.0,
+    42.41,
     0.0,
     0.0,
     0.0,
@@ -91,7 +91,6 @@
     0.0
   ],
   "irradiation": [
-    0.0,
     0.0,
     0,
     0,
@@ -110,6 +109,7 @@
     387.0,
     187.0,
     24.0,
+    0,
     0,
     0,
     0,
@@ -1358,7 +1358,7 @@
       "last_hour": 18
     },
     "2026-04-20": {
-      "total_kwh": 163.14,
+      "total_kwh": 205.55,
       "hourly": [
         0.0,
         0.0,
@@ -1373,7 +1373,7 @@
         37.09,
         42.76,
         44.27,
-        0.0,
+        42.41,
         0.0,
         0.0,
         0.0,
@@ -1386,7 +1386,6 @@
         0.0
       ],
       "irradiation": [
-        0.0,
         0.0,
         0,
         0,
@@ -1409,10 +1408,11 @@
         0,
         0,
         0,
+        0,
         0
       ],
-      "last_updated": "2026-04-20 12:10 SAST",
-      "last_hour": 12
+      "last_updated": "2026-04-20 13:58 SAST",
+      "last_hour": 13
     }
   },
   "thresholds": {
@@ -1423,15 +1423,15 @@
     "min_history_days": 7
   },
   "debug": {
-    "pct_of_avg": 139,
-    "expected_by_now": 117.4,
-    "effective_expected": 118.8,
-    "irrad_factor": 1.012,
-    "actual_kwh": 163.14,
-    "pace_trigger": 35.6,
-    "projected_total": 256.5,
+    "pct_of_avg": 135,
+    "expected_by_now": 152.1,
+    "effective_expected": 193.2,
+    "irrad_factor": 1.271,
+    "actual_kwh": 205.55,
+    "pace_trigger": 58.0,
+    "projected_total": 269.8,
     "daily_min": 117.5,
-    "curve_fraction": 0.636,
+    "curve_fraction": 0.762,
     "sunrise": 6.3,
     "sunset": 17.7,
     "sample_days": 18
