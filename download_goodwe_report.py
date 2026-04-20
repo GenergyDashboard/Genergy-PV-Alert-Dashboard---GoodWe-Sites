@@ -284,8 +284,29 @@ def download_goodwe_report():
 
             # ── Step 5: Select stations ────────────────────────────────
             print(f"🏢 Step 4: Selecting {len(STATIONS)} stations...")
+            selected = []
+            failed = []
             for station in STATIONS:
-                search_and_select_station(page, station)
+                try:
+                    search_and_select_station(page, station)
+                    selected.append(station)
+                except Exception as e:
+                    print(f"    ❌ Station '{station}' failed: {str(e)[:80]}")
+                    failed.append(station)
+                    # Try to recover page state
+                    try:
+                        page.keyboard.press("Escape")
+                        human_delay(2, 3)
+                    except Exception:
+                        pass
+                # Longer pause between stations to let page settle
+                human_delay(1, 2)
+
+            print(f"  📊 Selected: {len(selected)}/{len(STATIONS)}")
+            if failed:
+                print(f"  ⚠️  Failed: {', '.join(failed)}")
+            if not selected:
+                raise RuntimeError("No stations could be selected")
 
             # ── Step 6: Configure report ───────────────────────────────
             print("⚙️  Step 5: Configuring report...")
