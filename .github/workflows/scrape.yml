@@ -2,7 +2,7 @@ name: Scrape and Process GoodWe Sites Data
 
 on:
   schedule:
-    - cron: '0 3-19 * * *'
+    - cron: '5 3-19 * * *'
   workflow_dispatch:
 
 permissions:
@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -28,7 +28,33 @@ jobs:
           python -m playwright install chromium
           python -m playwright install-deps
 
-      - name: Run GoodWe scraper
+      - name: Run GoodWe scraper (attempt 1)
+        id: scrape1
+        continue-on-error: true
+        env:
+          GOODWE_USERNAME: ${{ secrets.GOODWE_USERNAME }}
+          GOODWE_PASSWORD: ${{ secrets.GOODWE_PASSWORD }}
+        run: python download_goodwe_report.py
+
+      - name: Wait before retry
+        if: steps.scrape1.outcome == 'failure'
+        run: echo "⏳ First attempt failed — waiting 60s before retry..." && sleep 60
+
+      - name: Run GoodWe scraper (attempt 2)
+        if: steps.scrape1.outcome == 'failure'
+        id: scrape2
+        continue-on-error: true
+        env:
+          GOODWE_USERNAME: ${{ secrets.GOODWE_USERNAME }}
+          GOODWE_PASSWORD: ${{ secrets.GOODWE_PASSWORD }}
+        run: python download_goodwe_report.py
+
+      - name: Wait before retry 2
+        if: steps.scrape1.outcome == 'failure' && steps.scrape2.outcome == 'failure'
+        run: echo "⏳ Second attempt failed — waiting 120s before final retry..." && sleep 120
+
+      - name: Run GoodWe scraper (attempt 3)
+        if: steps.scrape1.outcome == 'failure' && steps.scrape2.outcome == 'failure'
         env:
           GOODWE_USERNAME: ${{ secrets.GOODWE_USERNAME }}
           GOODWE_PASSWORD: ${{ secrets.GOODWE_PASSWORD }}
