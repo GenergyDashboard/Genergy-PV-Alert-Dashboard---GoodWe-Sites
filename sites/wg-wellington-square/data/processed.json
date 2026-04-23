@@ -1,9 +1,9 @@
 {
   "plant": "WG Wellington square",
-  "last_updated": "2026-04-23 09:19 SAST",
+  "last_updated": "2026-04-23 11:17 SAST",
   "date": "2026-04-23",
-  "total_kwh": 49.38,
-  "last_hour": 9,
+  "total_kwh": 196.09,
+  "last_hour": 11,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -22,8 +22,8 @@
       0.07,
       9.65,
       39.66,
-      0.0,
-      0.0,
+      66.18,
+      80.53,
       0.0,
       0.0,
       0.0,
@@ -75,8 +75,8 @@
     0.07,
     9.65,
     39.66,
-    0.0,
-    0.0,
+    66.18,
+    80.53,
     0.0,
     0.0,
     0.0,
@@ -1529,7 +1529,7 @@
       "last_hour": 18
     },
     "2026-04-23": {
-      "total_kwh": 49.38,
+      "total_kwh": 196.09,
       "hourly": [
         0.0,
         0.0,
@@ -1541,8 +1541,8 @@
         0.07,
         9.65,
         39.66,
-        0.0,
-        0.0,
+        66.18,
+        80.53,
         0.0,
         0.0,
         0.0,
@@ -1582,8 +1582,8 @@
         0,
         0
       ],
-      "last_updated": "2026-04-23 09:19 SAST",
-      "last_hour": 9
+      "last_updated": "2026-04-23 11:17 SAST",
+      "last_hour": 11
     }
   },
   "thresholds": {
@@ -1594,15 +1594,15 @@
     "min_history_days": 7
   },
   "debug": {
-    "pct_of_avg": 120,
-    "expected_by_now": 41.0,
-    "effective_expected": 48.2,
-    "irrad_factor": 1.175,
-    "actual_kwh": 49.38,
-    "pace_trigger": 14.5,
-    "projected_total": 207.3,
+    "pct_of_avg": 128,
+    "expected_by_now": 153.0,
+    "effective_expected": 187.4,
+    "irrad_factor": 1.225,
+    "actual_kwh": 196.09,
+    "pace_trigger": 56.2,
+    "projected_total": 392.2,
     "daily_min": 110.5,
-    "curve_fraction": 0.238,
+    "curve_fraction": 0.5,
     "sunrise": 6.3,
     "sunset": 17.7,
     "sample_days": 21
