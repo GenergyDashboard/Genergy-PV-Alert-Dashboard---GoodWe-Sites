@@ -1,6 +1,6 @@
 {
   "plant": "BMI Isuzu",
-  "last_updated": "2026-04-25 18:49 SAST",
+  "last_updated": "2026-04-25 19:43 SAST",
   "date": "2026-04-25",
   "total_kwh": 2561.6,
   "last_hour": 18,
@@ -1696,7 +1696,7 @@
         0,
         0
       ],
-      "last_updated": "2026-04-25 18:49 SAST",
+      "last_updated": "2026-04-25 19:43 SAST",
       "last_hour": 18
     }
   },
