@@ -1,9 +1,9 @@
 {
   "plant": "BMI Isuzu",
-  "last_updated": "2026-05-03 14:01 SAST",
+  "last_updated": "2026-05-03 15:19 SAST",
   "date": "2026-05-03",
-  "total_kwh": 1883.71,
-  "last_hour": 13,
+  "total_kwh": 2445.91,
+  "last_hour": 15,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -26,8 +26,8 @@
       409.31,
       417.4,
       392.81,
-      0.0,
-      0.0,
+      329.77,
+      232.43,
       0.0,
       0.0,
       0.0,
@@ -54,7 +54,7 @@
       577.0,
       473.0,
       323.0,
-      146.0,
+      147.0,
       14.0,
       0,
       0,
@@ -79,8 +79,8 @@
     409.31,
     417.4,
     392.81,
-    0.0,
-    0.0,
+    329.77,
+    232.43,
     0.0,
     0.0,
     0.0,
@@ -107,7 +107,7 @@
     577.0,
     473.0,
     323.0,
-    146.0,
+    147.0,
     14.0,
     0,
     0,
@@ -2042,7 +2042,7 @@
       "last_hour": 18
     },
     "2026-05-03": {
-      "total_kwh": 1883.71,
+      "total_kwh": 2445.91,
       "hourly": [
         0.0,
         0.0,
@@ -2058,8 +2058,8 @@
         409.31,
         417.4,
         392.81,
-        0.0,
-        0.0,
+        329.77,
+        232.43,
         0.0,
         0.0,
         0.0,
@@ -2086,7 +2086,7 @@
         577.0,
         473.0,
         323.0,
-        146.0,
+        147.0,
         14.0,
         0,
         0,
@@ -2095,8 +2095,8 @@
         0,
         0
       ],
-      "last_updated": "2026-05-03 14:01 SAST",
-      "last_hour": 13
+      "last_updated": "2026-05-03 15:19 SAST",
+      "last_hour": 15
     }
   },
   "thresholds": {
@@ -2107,15 +2107,15 @@
     "min_history_days": 7
   },
   "debug": {
-    "pct_of_avg": 106,
-    "expected_by_now": 1770.2,
-    "effective_expected": 1882.5,
-    "irrad_factor": 1.063,
-    "actual_kwh": 1883.71,
-    "pace_trigger": 564.7,
-    "projected_total": 2431.5,
+    "pct_of_avg": 105,
+    "expected_by_now": 2320.1,
+    "effective_expected": 2485.0,
+    "irrad_factor": 1.071,
+    "actual_kwh": 2445.91,
+    "pace_trigger": 745.5,
+    "projected_total": 2550.3,
     "daily_min": 517.4,
-    "curve_fraction": 0.775,
+    "curve_fraction": 0.959,
     "sunrise": 6.6,
     "sunset": 17.4,
     "sample_days": 30
