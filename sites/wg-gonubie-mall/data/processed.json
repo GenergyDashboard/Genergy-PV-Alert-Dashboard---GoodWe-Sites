@@ -1,9 +1,9 @@
 {
   "plant": "WG Gonubie Mall",
-  "last_updated": "2026-05-07 15:21 SAST",
+  "last_updated": "2026-05-07 17:58 SAST",
   "date": "2026-05-07",
-  "total_kwh": 508.05,
-  "last_hour": 15,
+  "total_kwh": 540.34,
+  "last_hour": 17,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -28,8 +28,8 @@
       56.95,
       46.52,
       53.77,
-      0.0,
-      0.0,
+      27.31,
+      4.98,
       0.0,
       0.0,
       0.0,
@@ -81,8 +81,8 @@
     56.95,
     46.52,
     53.77,
-    0.0,
-    0.0,
+    27.31,
+    4.98,
     0.0,
     0.0,
     0.0,
@@ -2042,7 +2042,7 @@
       "last_hour": 18
     },
     "2026-05-07": {
-      "total_kwh": 508.05,
+      "total_kwh": 540.34,
       "hourly": [
         0.0,
         0.0,
@@ -2060,8 +2060,8 @@
         56.95,
         46.52,
         53.77,
-        0.0,
-        0.0,
+        27.31,
+        4.98,
         0.0,
         0.0,
         0.0,
@@ -2095,8 +2095,8 @@
         0,
         0
       ],
-      "last_updated": "2026-05-07 15:21 SAST",
-      "last_hour": 15
+      "last_updated": "2026-05-07 17:58 SAST",
+      "last_hour": 17
     }
   },
   "thresholds": {
@@ -2107,17 +2107,7 @@
     "min_history_days": 7
   },
   "debug": {
-    "pct_of_avg": 74,
-    "expected_by_now": 689.1,
-    "effective_expected": 500.0,
-    "irrad_factor": 0.726,
-    "actual_kwh": 508.05,
-    "pace_trigger": 150.0,
-    "projected_total": 529.7,
-    "daily_min": 143.8,
-    "curve_fraction": 0.959,
-    "sunrise": 6.6,
-    "sunset": 17.4,
+    "reason": "nighttime",
     "sample_days": 30
   }
 }

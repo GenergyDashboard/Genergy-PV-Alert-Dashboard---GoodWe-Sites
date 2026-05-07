@@ -1,9 +1,9 @@
 {
   "plant": "Aurora",
-  "last_updated": "2026-05-07 15:21 SAST",
+  "last_updated": "2026-05-07 17:58 SAST",
   "date": "2026-05-07",
-  "total_kwh": 116.28,
-  "last_hour": 15,
+  "total_kwh": 132.84,
+  "last_hour": 17,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -28,8 +28,8 @@
       14.54,
       6.76,
       8.46,
-      0.0,
-      0.0,
+      16.17,
+      0.39,
       0.0,
       0.0,
       0.0,
@@ -81,8 +81,8 @@
     14.54,
     6.76,
     8.46,
-    0.0,
-    0.0,
+    16.17,
+    0.39,
     0.0,
     0.0,
     0.0,
@@ -2042,7 +2042,7 @@
       "last_hour": 17
     },
     "2026-05-07": {
-      "total_kwh": 116.28,
+      "total_kwh": 132.84,
       "hourly": [
         0.0,
         0.0,
@@ -2060,8 +2060,8 @@
         14.54,
         6.76,
         8.46,
-        0.0,
-        0.0,
+        16.17,
+        0.39,
         0.0,
         0.0,
         0.0,
@@ -2095,8 +2095,8 @@
         0,
         0
       ],
-      "last_updated": "2026-05-07 15:21 SAST",
-      "last_hour": 15
+      "last_updated": "2026-05-07 17:58 SAST",
+      "last_hour": 17
     }
   },
   "thresholds": {
@@ -2107,17 +2107,7 @@
     "min_history_days": 7
   },
   "debug": {
-    "pct_of_avg": 27,
-    "expected_by_now": 431.4,
-    "effective_expected": 150.0,
-    "irrad_factor": 0.348,
-    "actual_kwh": 116.28,
-    "pace_trigger": 45.0,
-    "projected_total": 121.2,
-    "daily_min": 97.3,
-    "curve_fraction": 0.959,
-    "sunrise": 6.6,
-    "sunset": 17.4,
+    "reason": "nighttime",
     "sample_days": 30
   }
 }
