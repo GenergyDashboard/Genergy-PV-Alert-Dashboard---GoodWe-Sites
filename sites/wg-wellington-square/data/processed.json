@@ -1,6 +1,6 @@
 {
   "plant": "WG Wellington square",
-  "last_updated": "2026-05-08 18:06 SAST",
+  "last_updated": "2026-05-08 19:58 SAST",
   "date": "2026-05-08",
   "total_kwh": 253.77,
   "last_hour": 17,
@@ -2095,7 +2095,7 @@
         0,
         0
       ],
-      "last_updated": "2026-05-08 18:06 SAST",
+      "last_updated": "2026-05-08 19:58 SAST",
       "last_hour": 17
     }
   },
