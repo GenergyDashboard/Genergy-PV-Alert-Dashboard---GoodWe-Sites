@@ -1,6 +1,6 @@
 {
   "plant": "WG Gonubie Mall",
-  "last_updated": "2026-05-09 21:15 SAST",
+  "last_updated": "2026-05-09 22:14 SAST",
   "date": "2026-05-09",
   "total_kwh": 794.09,
   "last_hour": 17,
@@ -2095,7 +2095,7 @@
         0,
         0
       ],
-      "last_updated": "2026-05-09 21:15 SAST",
+      "last_updated": "2026-05-09 22:14 SAST",
       "last_hour": 17
     }
   },
