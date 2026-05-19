@@ -1,6 +1,6 @@
 {
   "plant": "WG DEBI LEE SPAR",
-  "last_updated": "2026-05-19 21:05 SAST",
+  "last_updated": "2026-05-19 23:09 SAST",
   "date": "2026-05-19",
   "total_kwh": 465.45,
   "last_hour": 17,
@@ -2095,7 +2095,7 @@
         0,
         0
       ],
-      "last_updated": "2026-05-19 21:05 SAST",
+      "last_updated": "2026-05-19 23:09 SAST",
       "last_hour": 17
     }
   },
