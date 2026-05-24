@@ -1,6 +1,6 @@
 {
   "plant": "WG Heritage Mall",
-  "last_updated": "2026-05-24 17:49 SAST",
+  "last_updated": "2026-05-24 19:07 SAST",
   "date": "2026-05-24",
   "total_kwh": 1095.28,
   "last_hour": 17,
@@ -2095,7 +2095,7 @@
         0,
         0
       ],
-      "last_updated": "2026-05-24 17:49 SAST",
+      "last_updated": "2026-05-24 19:07 SAST",
       "last_hour": 17
     }
   },
