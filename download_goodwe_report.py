@@ -321,7 +321,24 @@ def download_goodwe_report():
 
             # ── Step 7: Generate and Download ──────────────────────────
             print("📤 Step 6: Generating report...")
-            page.locator("div:nth-child(2) > .index-module_wrap_640bd > img").click()
+            # Dismiss AI chatbot overlay if present
+            try:
+                close_btn = page.locator("img[src*='ai_close']").first
+                if close_btn.is_visible(timeout=2000):
+                    close_btn.click()
+                    human_delay(1, 2)
+                    print("  ✅ Dismissed AI chatbot")
+            except Exception:
+                pass
+            # GoodWe added AI chatbot overlay — must target download icon specifically
+            try:
+                page.locator("img[src*='icon_dark_download']").first.click(timeout=10000)
+            except Exception:
+                try:
+                    page.locator("img[src*='download']").first.click(timeout=10000)
+                except Exception:
+                    # Fallback: use .first on the old selector
+                    page.locator("div:nth-child(2) > .index-module_wrap_640bd > img").first.click(timeout=10000)
             human_delay(3, 5)
 
             try:
