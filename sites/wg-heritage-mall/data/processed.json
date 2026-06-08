@@ -1,9 +1,9 @@
 {
   "plant": "WG Heritage Mall",
-  "last_updated": "2026-06-08 13:17 SAST",
+  "last_updated": "2026-06-08 15:11 SAST",
   "date": "2026-06-08",
-  "total_kwh": 373.75,
-  "last_hour": 13,
+  "total_kwh": 457.91,
+  "last_hour": 15,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -26,8 +26,8 @@
       111.14,
       73.49,
       60.22,
-      0.0,
-      0.0,
+      63.69,
+      20.47,
       0.0,
       0.0,
       0.0,
@@ -79,8 +79,8 @@
     111.14,
     73.49,
     60.22,
-    0.0,
-    0.0,
+    63.69,
+    20.47,
     0.0,
     0.0,
     0.0,
@@ -2042,7 +2042,7 @@
       "last_hour": 17
     },
     "2026-06-08": {
-      "total_kwh": 373.75,
+      "total_kwh": 457.91,
       "hourly": [
         0.0,
         0.0,
@@ -2058,8 +2058,8 @@
         111.14,
         73.49,
         60.22,
-        0.0,
-        0.0,
+        63.69,
+        20.47,
         0.0,
         0.0,
         0.0,
@@ -2095,8 +2095,8 @@
         0,
         0
       ],
-      "last_updated": "2026-06-08 13:17 SAST",
-      "last_hour": 13
+      "last_updated": "2026-06-08 15:11 SAST",
+      "last_hour": 15
     }
   },
   "thresholds": {
@@ -2107,15 +2107,15 @@
     "min_history_days": 7
   },
   "debug": {
-    "pct_of_avg": 61,
-    "expected_by_now": 608.0,
-    "effective_expected": 468.2,
-    "irrad_factor": 0.77,
-    "actual_kwh": 373.75,
-    "pace_trigger": 140.5,
-    "projected_total": 478.3,
+    "pct_of_avg": 55,
+    "expected_by_now": 837.2,
+    "effective_expected": 553.1,
+    "irrad_factor": 0.661,
+    "actual_kwh": 457.91,
+    "pace_trigger": 165.9,
+    "projected_total": 474.4,
     "daily_min": 25.9,
-    "curve_fraction": 0.781,
+    "curve_fraction": 0.965,
     "sunrise": 6.74,
     "sunset": 17.26,
     "sample_days": 30
