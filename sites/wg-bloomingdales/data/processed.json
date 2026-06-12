@@ -1,6 +1,6 @@
 {
   "plant": "WG Bloomingdales",
-  "last_updated": "2026-06-12 14:02 SAST",
+  "last_updated": "2026-06-12 14:31 SAST",
   "date": "2026-06-12",
   "total_kwh": 104.06,
   "last_hour": 14,
@@ -2095,7 +2095,7 @@
         0,
         0
       ],
-      "last_updated": "2026-06-12 14:02 SAST",
+      "last_updated": "2026-06-12 14:31 SAST",
       "last_hour": 14
     }
   },
