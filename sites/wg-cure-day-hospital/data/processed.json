@@ -1,9 +1,9 @@
 {
   "plant": "WG Cure Day hospital",
-  "last_updated": "2026-06-17 14:55 SAST",
+  "last_updated": "2026-06-17 15:23 SAST",
   "date": "2026-06-17",
-  "total_kwh": 105.57,
-  "last_hour": 14,
+  "total_kwh": 114.14,
+  "last_hour": 15,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -27,7 +27,7 @@
       16.08,
       33.3,
       15.53,
-      0.0,
+      8.57,
       0.0,
       0.0,
       0.0,
@@ -80,7 +80,7 @@
     16.08,
     33.3,
     15.53,
-    0.0,
+    8.57,
     0.0,
     0.0,
     0.0,
@@ -2042,7 +2042,7 @@
       "last_hour": 17
     },
     "2026-06-17": {
-      "total_kwh": 105.57,
+      "total_kwh": 114.14,
       "hourly": [
         0.0,
         0.0,
@@ -2059,7 +2059,7 @@
         16.08,
         33.3,
         15.53,
-        0.0,
+        8.57,
         0.0,
         0.0,
         0.0,
@@ -2095,8 +2095,8 @@
         0,
         0
       ],
-      "last_updated": "2026-06-17 14:55 SAST",
-      "last_hour": 14
+      "last_updated": "2026-06-17 15:23 SAST",
+      "last_hour": 15
     }
   },
   "thresholds": {
@@ -2107,15 +2107,15 @@
     "min_history_days": 7
   },
   "debug": {
-    "pct_of_avg": 81,
-    "expected_by_now": 130.3,
-    "effective_expected": 108.9,
-    "irrad_factor": 0.836,
-    "actual_kwh": 105.57,
-    "pace_trigger": 32.7,
-    "projected_total": 118.5,
+    "pct_of_avg": 79,
+    "expected_by_now": 143.6,
+    "effective_expected": 122.5,
+    "irrad_factor": 0.853,
+    "actual_kwh": 114.14,
+    "pace_trigger": 36.8,
+    "projected_total": 118.3,
     "daily_min": 24.2,
-    "curve_fraction": 0.891,
+    "curve_fraction": 0.965,
     "sunrise": 6.74,
     "sunset": 17.26,
     "sample_days": 30
