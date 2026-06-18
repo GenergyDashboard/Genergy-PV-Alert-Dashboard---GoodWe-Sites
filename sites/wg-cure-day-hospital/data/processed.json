@@ -1,6 +1,6 @@
 {
   "plant": "WG Cure Day hospital",
-  "last_updated": "2026-06-18 11:01 SAST",
+  "last_updated": "2026-06-18 11:31 SAST",
   "date": "2026-06-18",
   "total_kwh": 28.26,
   "last_hour": 11,
@@ -2095,7 +2095,7 @@
         0,
         0
       ],
-      "last_updated": "2026-06-18 11:01 SAST",
+      "last_updated": "2026-06-18 11:31 SAST",
       "last_hour": 11
     }
   },
