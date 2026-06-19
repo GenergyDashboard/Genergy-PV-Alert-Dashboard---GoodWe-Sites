@@ -1,9 +1,9 @@
 {
   "plant": "WG Bloomingdales",
-  "last_updated": "2026-06-19 14:50 SAST",
+  "last_updated": "2026-06-19 15:08 SAST",
   "date": "2026-06-19",
-  "total_kwh": 84.35,
-  "last_hour": 14,
+  "total_kwh": 103.82,
+  "last_hour": 15,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -27,7 +27,7 @@
       13.93,
       15.43,
       20.3,
-      0.0,
+      19.47,
       0.0,
       0.0,
       0.0,
@@ -80,7 +80,7 @@
     13.93,
     15.43,
     20.3,
-    0.0,
+    19.47,
     0.0,
     0.0,
     0.0,
@@ -2042,7 +2042,7 @@
       "last_hour": 17
     },
     "2026-06-19": {
-      "total_kwh": 84.35,
+      "total_kwh": 103.82,
       "hourly": [
         0.0,
         0.0,
@@ -2059,7 +2059,7 @@
         13.93,
         15.43,
         20.3,
-        0.0,
+        19.47,
         0.0,
         0.0,
         0.0,
@@ -2095,8 +2095,8 @@
         0,
         0
       ],
-      "last_updated": "2026-06-19 14:50 SAST",
-      "last_hour": 14
+      "last_updated": "2026-06-19 15:08 SAST",
+      "last_hour": 15
     }
   },
   "thresholds": {
@@ -2107,15 +2107,15 @@
     "min_history_days": 7
   },
   "debug": {
-    "pct_of_avg": 65,
-    "expected_by_now": 130.2,
-    "effective_expected": 140.2,
-    "irrad_factor": 1.076,
-    "actual_kwh": 84.35,
-    "pace_trigger": 42.1,
-    "projected_total": 94.7,
+    "pct_of_avg": 71,
+    "expected_by_now": 145.9,
+    "effective_expected": 157.4,
+    "irrad_factor": 1.079,
+    "actual_kwh": 103.82,
+    "pace_trigger": 47.2,
+    "projected_total": 107.6,
     "daily_min": 5.3,
-    "curve_fraction": 0.891,
+    "curve_fraction": 0.965,
     "sunrise": 6.74,
     "sunset": 17.26,
     "sample_days": 30
