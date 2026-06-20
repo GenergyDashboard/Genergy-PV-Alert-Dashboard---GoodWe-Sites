@@ -1,9 +1,9 @@
 {
   "plant": "BMI Isuzu",
-  "last_updated": "2026-06-20 12:35 SAST",
+  "last_updated": "2026-06-20 14:29 SAST",
   "date": "2026-06-20",
-  "total_kwh": 1025.9,
-  "last_hour": 12,
+  "total_kwh": 1677.22,
+  "last_hour": 14,
   "status": "ok",
   "alerts": {
     "offline": false,
@@ -25,8 +25,8 @@
       231.35,
       325.26,
       336.31,
-      0.0,
-      0.0,
+      390.06,
+      261.26,
       0.0,
       0.0,
       0.0,
@@ -78,8 +78,8 @@
     231.35,
     325.26,
     336.31,
-    0.0,
-    0.0,
+    390.06,
+    261.26,
     0.0,
     0.0,
     0.0,
@@ -2042,7 +2042,7 @@
       "last_hour": 17
     },
     "2026-06-20": {
-      "total_kwh": 1025.9,
+      "total_kwh": 1677.22,
       "hourly": [
         0.0,
         0.0,
@@ -2057,8 +2057,8 @@
         231.35,
         325.26,
         336.31,
-        0.0,
-        0.0,
+        390.06,
+        261.26,
         0.0,
         0.0,
         0.0,
@@ -2095,8 +2095,8 @@
         0,
         0
       ],
-      "last_updated": "2026-06-20 12:35 SAST",
-      "last_hour": 12
+      "last_updated": "2026-06-20 14:29 SAST",
+      "last_hour": 14
     }
   },
   "thresholds": {
@@ -2107,15 +2107,15 @@
     "min_history_days": 7
   },
   "debug": {
-    "pct_of_avg": 116,
-    "expected_by_now": 887.9,
-    "effective_expected": 1004.1,
+    "pct_of_avg": 124,
+    "expected_by_now": 1353.9,
+    "effective_expected": 1531.9,
     "irrad_factor": 1.131,
-    "actual_kwh": 1025.9,
-    "pace_trigger": 301.2,
-    "projected_total": 1585.1,
+    "actual_kwh": 1677.22,
+    "pace_trigger": 459.6,
+    "projected_total": 1883.3,
     "daily_min": 187.3,
-    "curve_fraction": 0.647,
+    "curve_fraction": 0.891,
     "sunrise": 6.74,
     "sunset": 17.26,
     "sample_days": 30
